@@ -1,0 +1,81 @@
+# === FRONTEND (React) ===
+client/node_modules/
+client/build/
+client/dist/
+client/.env
+client/.env.local
+client/.env.development
+client/.env.production
+client/.env.test
+
+# React artifacts
+client/.next/
+client/.cache/
+client/yarn.lock
+client/package-lock.json
+
+# macOS / Windows
+client/.DS_Store
+client/Thumbs.db
+
+# === BACKEND (Spring Boot) ===
+server/target/
+server/build/
+
+# Ignore sensitive Spring config
+server/src/main/resources/application.properties
+
+# Maven wrapper
+server/.mvn/
+server/mvnw
+server/mvnw.cmd
+
+# Java class files
+*.class
+*.jar
+*.war
+*.log
+
+# STS (Spring Tool Suite)
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# === VS Code ===
+.vscode/
+
+# === OS / Misc ===
+.DS_Store
+Thumbs.db
+
+# === Optional ===
+*.swp
+*.bak
+*.tmp
+
+# === Logs ===
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === Others ===
+HELP.md
