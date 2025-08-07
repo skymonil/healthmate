@@ -1,5 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@tailwind utilities;
+
+body {
+  @apply font-sans;
+}
+
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -11,6 +17,16 @@
   --color-secondary:  #14B8A6;
   --color-accent:     #CBD5E1;
 }
+
+/* Tailwind doesn't have this by default */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.4);
+  border-radius: 8px;
+}
+
 
 @layer theme {
   /* Dark mode overrides */

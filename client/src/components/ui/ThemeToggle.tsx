@@ -1,20 +1,24 @@
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 
 const ThemeToggle = () => {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-  }, [isDark]);
+  const { theme = "light", setTheme } = useTheme();
 
   return (
-    <button
-      onClick={() => setIsDark(!isDark)}
-      className="absolute top-2 right-2 md:top-3 md:right-3 z-50 p-2 rounded-full bg-accent text-text shadow hover:bg-secondary transition-colors cursor-pointer"
-    >
-      {isDark ? <Sun size={20} /> : <Moon size={20} />}
-    </button>
+    <div className="absolute top-2 right-2 md:top-3 md:right-3 z-50 flex gap-1 p-1 rounded-full bg-gray-200 dark:bg-gray-800 shadow">
+      <button
+        onClick={() => setTheme("light")}
+        className={`p-2 rounded-full ${theme === "light" ? "bg-white text-gray-900" : "text-gray-600 dark:text-gray-400"}`}
+      >
+        <Sun size={18} />
+      </button>
+      <button
+        onClick={() => setTheme("dark")}
+        className={`p-2 rounded-full ${theme === "dark" ? "bg-gray-700 text-white" : "text-gray-600 dark:text-gray-400"}`}
+      >
+        <Moon size={18} />
+      </button>
+    </div>
   );
 };
 
