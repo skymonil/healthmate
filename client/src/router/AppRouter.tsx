@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-// import AuthPage from "@/pages/AuthPage";
+import AuthPage from "@/pages/AuthPage";
 import ChatPage from "@/pages/ChatPage";
 import { useAuth } from "@/context/AuthContext";
 
@@ -12,8 +12,8 @@ export default function AppRouter() {
       <Routes>
         <Route
           path="/"
-          // element={isLoggedIn ? <Navigate to="/chat" /> : <AuthPage />}
-          element={<ChatPage />}
+          element={isLoggedIn ? <Navigate to="/chat" /> : <AuthPage />}
+          // element={<ChatPage />}
         />
         <Route
           path="/chat"

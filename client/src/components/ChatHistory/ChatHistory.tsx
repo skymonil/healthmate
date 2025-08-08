@@ -1,5 +1,27 @@
 import { useState, useEffect } from "react";
-import { Menu, MessageSquare, Plus, Search, X } from "lucide-react";
+import {
+  Menu,
+  Plus,
+  Search,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Trash2,
+} from "lucide-react";
+import logo from "../../../public/logo.png";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 interface ChatSession {
   id: string;
@@ -16,13 +38,16 @@ const ChatHistory = ({
   onSelectSession: (session: ChatSession) => void;
   onCreateNew: () => void;
 }) => {
+  const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isOpenDialog, setIsOpenDialog] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null);
+  const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
 
   const filteredSessions = sessions.filter((session) => {
     if (!searchTerm) return true;
-
     const searchLower = searchTerm.toLowerCase();
     return (
       session.title.toLowerCase().includes(searchLower) ||
@@ -45,11 +70,26 @@ const ChatHistory = ({
     setIsOpen(false);
   };
 
+  const confirmDelete = (session: ChatSession) => {
+    setSessionToDelete(session);
+  };
+
+  const handleDelete = () => {
+    if (!sessionToDelete) return;
+    const updatedSessions = sessions.filter(
+      (s) => s.id !== sessionToDelete.id
+    );
+    setSessions(updatedSessions);
+    localStorage.setItem("chatSessions", JSON.stringify(updatedSessions));
+    toast.success("Chat deleted");
+    setSessionToDelete(null);
+  };
+
   return (
     <div className="relative">
       {/* Mobile Menu Button */}
       <button
-        className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition"
         onClick={() => setIsOpen(true)}
       >
         <Menu className="h-6 w-6" />
@@ -58,15 +98,23 @@ const ChatHistory = ({
       {/* Sidebar */}
       {isOpen && (
         <>
-          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setIsOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            onClick={() => setIsOpen(false)}
+          />
 
-          <div className="fixed inset-y-0 left-0 w-72 sm:w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-lg z-50 flex flex-col">
-            {/* Header with Close Button */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-10">
-              <div className="flex items-center gap-2 font-semibold">
-                <MessageSquare className="h-5 w-5" />
-                <span>Chat History</span>
-              </div>
+          <div
+            className="fixed inset-y-0 left-0 w-72 sm:w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-2xl z-50 flex flex-col animate-slide-in"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
+              <button
+                className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors"
+                onClick={onCreateNew}
+              >
+                <img src={logo} alt="HealthMate" className="h-5 w-5" />
+                <span>HealthMate</span>
+              </button>
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
@@ -79,7 +127,7 @@ const ChatHistory = ({
             <div className="p-3 space-y-3 border-b border-gray-100 dark:border-gray-800">
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
               >
                 <Plus size={16} />
                 New Chat
@@ -90,14 +138,14 @@ const ChatHistory = ({
                 <input
                   type="text"
                   placeholder="Search chats..."
-                  className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
 
-            {/* Scrollable Session List */}
+            {/* Session List */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               {searchTerm && filteredSessions.length === 0 ? (
                 <div className="p-4 text-center text-gray-400 text-sm">
@@ -108,14 +156,26 @@ const ChatHistory = ({
                   {filteredSessions.map((session) => (
                     <li
                       key={session.id}
-                      className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition"
+                      className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition rounded-md"
                       onClick={() => {
                         onSelectSession(session);
                         setIsOpen(false);
                       }}
                     >
-                      <div className="font-medium text-sm truncate">
-                        {session.title}
+                      <div className="flex justify-between items-center">
+                        <div className="font-medium text-sm truncate flex-1">
+                          {session.title}
+                        </div>
+                        <button
+                          className="p-1 ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-300"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            confirmDelete(session);
+                          }}
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         {session.lastMessage}
@@ -131,39 +191,126 @@ const ChatHistory = ({
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-gray-200 dark:border-gray-800 sticky bottom-0 bg-white dark:bg-gray-900">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
-                  C
-                </div>
-                <div className="flex flex-col flex-1">
-                  <span className="text-sm font-medium">Chirag</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Free Plan</span>
-                </div>
-              </div>
-              <button
-                className="mt-3 w-full py-2 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition"
-                onClick={() => setIsOpen(false)}
-              >
-                Close Sidebar
-              </button>
+            <div className="p-4 border-t border-gray-200 dark:border-gray-800 sticky bg-white dark:bg-gray-900 bottom-2">
+              <DropdownMenu onOpenChange={(open) => setIsOpenDialog(open)}>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-3 w-full rounded-lg p-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:focus:ring-blue-500/50">
+                    <Avatar className="h-10 w-10 border border-gray-200 dark:border-gray-700 bg-blue-500 dark:bg-blue-600">
+                      <AvatarFallback className="text-white font-semibold">
+                        {user?.name?.trim()?.charAt(0)?.toUpperCase() || "C"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col flex-1 text-left overflow-hidden">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                        {user?.name || "Chirag"}
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        chiragvaru03@gmail.com
+                      </span>
+                    </div>
+                    {isOpenDialog ? (
+                      <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="start"
+                  className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg overflow-hidden"
+                >
+                  <DropdownMenuLabel className="px-3 py-2 text-xs tracking-wide text-gray-500 dark:text-gray-400">
+                    Account
+                    {/* Free Plan */}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+
+                  <DropdownMenuItem
+                    onClick={() => logout()}
+                    className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Log Out
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setIsDeleteAccountOpen(true)}
+                    className="px-3 py-2 text-sm cursor-pointer text-red-500 hover:bg-red-50 dark:hover:bg-gray-700 dark:text-red-400"
+                  >
+                    Delete Account
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </>
       )}
 
-      {/* Scrollbar Styles */}
+      {/* Account delete confirmation dialog */}
+      <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Account</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteAccountOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                // Replace with your API call to delete account
+                console.log("Deleting account...");
+                toast.success("Account deleted");
+                setIsDeleteAccountOpen(false);
+                logout(); // optional if deletion also logs out user
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!sessionToDelete} onOpenChange={() => setSessionToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Chat</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete "{sessionToDelete?.title}"? This cannot be undone.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSessionToDelete(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <style>
         {`
+          .animate-slide-in {
+            animation: slideIn 0.25s ease-out forwards;
+          }
+          @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
           .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
           }
           .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: rgba(107, 114, 128, 0.5);
+            background-color: rgba(107, 114, 128, 0.4);
             border-radius: 9999px;
           }
-          .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(107, 114, 128, 0.6);
           }
         `}
       </style>

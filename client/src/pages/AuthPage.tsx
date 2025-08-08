@@ -1,11 +1,15 @@
 import AuthFormWrapper from "@/components/auth/AuthFormWrapper";
 import AuthVisual from "@/components/auth/AuthVisual";
-import ThemeToggle from "@/components/ui/ThemeToggle";
+// import ThemeToggle from "@/components/ui/ThemeToggle";
+import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 
 const AuthPage = () => {
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50 dark:bg-slate-900 text-slate-900 dark:text-gray-100">
-        <ThemeToggle />
+    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50 dark:bg-slate-900 text-slate-900 dark:text-gray-100 relative">
+      <div className="absolute top-4 right-4 z-10">
+        {/* <ThemeToggle /> */}
+        <ThemeToggleButton start="top-right" />
+      </div>
       {/* Left Visual Section */}
       <AuthVisual />
 
