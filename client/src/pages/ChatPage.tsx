@@ -197,10 +197,22 @@ const ChatPage = () => {
           </button>
           {/* Header */}
           <header className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-            <img src="/logo.png" alt="HealthMate Logo" className="h-8 w-8" />
-            <h1 className="text-lg font-semibold truncate flex-1 flex items-center gap-2">
-              HealthMate
-            </h1>
+            <button
+              className={`flex items-center gap-2 flex-1 ${messages.length > 0 ? 'cursor-pointer' : 'cursor-default'}`}
+              onClick={() => {
+                if (messages.length > 0) {
+                  setMessages([]);
+                  setCurrentSessionId(null);
+                  setShowNewChat(false);
+                  toast.success("New chat started");
+                }
+              }}
+            >
+              <img src="/logo.png" alt="HealthMate Logo" className="h-8 w-8" />
+              <h1 className="text-lg font-semibold truncate">
+                HealthMate
+              </h1>
+            </button>
             <ThemeToggleButton start="top-right" />
           </header>
 

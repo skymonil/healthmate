@@ -108,10 +108,13 @@ const ChatHistory = ({
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
-              <div className="flex items-center gap-2 font-semibold text-lg">
+              <button
+                className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors"
+                onClick={onCreateNew}
+              >
                 <img src={logo} alt="HealthMate" className="h-5 w-5" />
                 <span>HealthMate</span>
-              </div>
+              </button>
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
