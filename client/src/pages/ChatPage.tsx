@@ -7,6 +7,7 @@ import {
   Sidebar,
   SidebarContent,
 } from "@/components/ui/sidebar";
+import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 
 interface Message {
   id: number;
@@ -179,13 +180,28 @@ const ChatPage = () => {
         </Sidebar>
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col h-screen">
+        <div className="flex-1 flex flex-col h-screen relative">
+          {/* Mobile History Toggle */}
+          <button
+            className="md:hidden absolute top-3 left-3 z-10 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md"
+            onClick={() => {
+              if (window.innerWidth < 768) {
+                const sidebar = document.querySelector('[data-radix-collection-item]');
+                sidebar?.dispatchEvent(new CustomEvent('toggleSidebar'));
+              }
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+            </svg>
+          </button>
           {/* Header */}
           <header className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
             <img src="/logo.png" alt="HealthMate Logo" className="h-8 w-8" />
             <h1 className="text-lg font-semibold truncate flex-1 flex items-center gap-2">
               HealthMate
             </h1>
+            <ThemeToggleButton start="top-right" />
           </header>
 
           {/* Messages */}
@@ -202,7 +218,7 @@ const ChatPage = () => {
                     }`}
                   >
                     <div
-                      className={`w-fit max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-4 py-3 rounded-2xl text-base shadow-md ${
+                      className={`w-fit max-w-[85%] xs:max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base shadow-md ${
                         msg.role === "user"
                           ? "bg-blue-600 text-white rounded-br-sm"
                           : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
@@ -213,7 +229,7 @@ const ChatPage = () => {
                     {msg.role === "bot" && (
                       <button
                         onClick={() => handleShareMessage(msg.text)}
-                        className="flex items-center gap-1 text-xs text-blue-500 dark:text-blue-400 mt-1 hover:underline"
+                        className="flex items-center gap-1 text-2xs sm:text-xs text-blue-500 dark:text-blue-400 mt-1 hover:underline"
                       >
                         <Share2 size={12} /> Share
                       </button>
@@ -237,7 +253,7 @@ const ChatPage = () => {
           </div>
 
           {/* Input */}
-          <div className="sticky bottom-0 flex justify-center px-4 pb-4 bg-gray-50 dark:bg-gray-900">
+          <div className="sticky bottom-0 flex justify-center px-3 sm:px-4 pb-3 sm:pb-4 bg-gray-50 dark:bg-gray-900">
             <div className="w-full max-w-3xl">
               {showNewChat ? (
                 <div className="flex justify-center">
@@ -247,15 +263,15 @@ const ChatPage = () => {
                       setShowNewChat(false);
                       setCurrentSessionId(null);
                     }}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-md text-base w-full md:w-auto"
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 sm:px-6 py-2 sm:py-3 rounded-md text-sm sm:text-base w-full md:w-auto"
                   >
                     New Chat
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl w-full">
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 sm:p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl w-full">
                   <textarea
-                    className="flex-1 resize-none bg-transparent px-3 py-2 text-base text-gray-900 dark:text-white focus:outline-none focus:ring-0"
+                    className="flex-1 resize-none bg-transparent px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base text-gray-900 dark:text-white focus:outline-none focus:ring-0"
                     rows={1}
                     placeholder={
                       loading
@@ -269,7 +285,7 @@ const ChatPage = () => {
                   />
                   <button
                     onClick={handleSend}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-4 py-2 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-20"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-16 sm:w-20"
                     disabled={loading}
                   >
                     {loading ? "..." : "Send"}
