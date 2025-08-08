@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { Share2 } from "lucide-react";
+import { toast } from "sonner";
 import ChatHistory from "@/components/ChatHistory/ChatHistory";
-import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+} from "@/components/ui/sidebar";
 
 interface Message {
   id: number;
@@ -17,15 +23,28 @@ type ChatSession = {
 };
 
 const ChatPage = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sharedChat = params.get("share");
+    if (sharedChat) {
+      try {
+        const session = JSON.parse(decodeURIComponent(sharedChat));
+        setIsSharedChat(true);
+        return session.messages;
+      } catch (e) {
+        console.error("Error parsing shared chat:", e);
+      }
+    }
+    return [];
+  });
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [showNewChat, setShowNewChat] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [_isSharedChat, setIsSharedChat] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto scroll to latest message
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -49,7 +68,6 @@ const ChatPage = () => {
     setInput("");
     setLoading(true);
 
-    // Simulate delay for bot thinking
     setTimeout(() => {
       setMessages((prev) =>
         prev.map((msg) =>
@@ -72,7 +90,6 @@ const ChatPage = () => {
             responseMsg,
           ];
 
-          // Save session to localStorage
           const sessions: ChatSession[] = JSON.parse(
             localStorage.getItem("chatSessions") || "[]"
           );
@@ -107,10 +124,33 @@ const ChatPage = () => {
     }
   };
 
+  const handleShareMessage = async (message: string, shareUrl = false) => {
+    const content = shareUrl
+      ? `${message}\n\n${window.location.href}`
+      : message;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Shared from HealthMate",
+          text: content,
+          url: shareUrl ? window.location.href : undefined,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      navigator.clipboard.writeText(content);
+      toast.success(shareUrl
+        ? "Chat link copied to clipboard!"
+        : "Message copied to clipboard!");
+    }
+  };
+
   return (
     <SidebarProvider defaultOpen={false}>
       <div className="flex h-screen w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        {/* Sidebar for larger screens */}
+        {/* Sidebar */}
         <Sidebar
           side="left"
           variant="sidebar"
@@ -141,40 +181,59 @@ const ChatPage = () => {
         {/* Chat Area */}
         <div className="flex-1 flex flex-col h-screen">
           {/* Header */}
-          <header className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 top-0 z-1 flex items-center gap-2">
-            <img
-              src="/logo.png"
-              alt="HealthMate Logo"
-              className="h-8 w-8"
-            />
-            <h1 className="text-lg font-semibold truncate">
+          <header className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+            <img src="/logo.png" alt="HealthMate Logo" className="h-8 w-8" />
+            <h1 className="text-lg font-semibold truncate flex-1 flex items-center gap-2">
               HealthMate
             </h1>
           </header>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 space-y-4 bg-gray-50 dark:bg-gray-900 custom-scrollbar">
-            <div className="max-w-3xl mx-auto w-full px-2">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${
-                    msg.role === "user" ? "justify-end" : "justify-start"
-                  }`}
-                >
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 dark:bg-gray-900 custom-scrollbar">
+            {messages.length > 0 ? (
+              <div className="max-w-3xl mx-auto w-full px-2 space-y-4">
+                {messages.map((msg) => (
                   <div
-                    className={`w-fit max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-4 py-3 rounded-2xl text-base shadow-md ${
+                    key={msg.id}
+                    className={`flex ${
                       msg.role === "user"
-                        ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
+                        ? "justify-end"
+                        : "justify-start flex-col"
                     }`}
                   >
-                    {msg.text}
+                    <div
+                      className={`w-fit max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-4 py-3 rounded-2xl text-base shadow-md ${
+                        msg.role === "user"
+                          ? "bg-blue-600 text-white rounded-br-sm"
+                          : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                    {msg.role === "bot" && (
+                      <button
+                        onClick={() => handleShareMessage(msg.text)}
+                        className="flex items-center gap-1 text-xs text-blue-500 dark:text-blue-400 mt-1 hover:underline"
+                      >
+                        <Share2 size={12} /> Share
+                      </button>
+                    )}
                   </div>
+                ))}
+                <div ref={chatEndRef} />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full -mt-16">
+                <div className="max-w-2xl text-center px-4 mb-8">
+                  <h2 className="text-3xl font-bold mb-4">
+                    Welcome to HealthMate Chat
+                  </h2>
+                  <p className="text-lg text-gray-600 dark:text-gray-400">
+                    Describe your symptoms to get personalized health advice
+                  </p>
                 </div>
-              ))}
-              <div ref={chatEndRef} />
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Input */}
@@ -198,7 +257,11 @@ const ChatPage = () => {
                   <textarea
                     className="flex-1 resize-none bg-transparent px-3 py-2 text-base text-gray-900 dark:text-white focus:outline-none focus:ring-0"
                     rows={1}
-                    placeholder={loading ? "Analyzing..." : "Describe your symptoms..."}
+                    placeholder={
+                      loading
+                        ? "Analyzing..."
+                        : "Describe your symptoms..."
+                    }
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
