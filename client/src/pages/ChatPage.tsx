@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Share2 } from "lucide-react";
+import { Share2, Menu } from "lucide-react";
 import { toast } from "sonner";
 import ChatHistory from "@/components/ChatHistory/ChatHistory";
 import {
@@ -7,6 +7,11 @@ import {
   Sidebar,
   SidebarContent,
 } from "@/components/ui/sidebar";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+} from "@/components/ui/sheet";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 
 interface Message {
@@ -29,10 +34,8 @@ const ChatPage = () => {
   const [loading, setLoading] = useState(false);
   const [showNewChat, setShowNewChat] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [isSharedChat, setIsSharedChat] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-
+  const [_isSharedChat, setIsSharedChat] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Parse shared chat from URL
@@ -50,7 +53,7 @@ const ChatPage = () => {
     }
   }, []);
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -74,7 +77,6 @@ const ChatPage = () => {
 
   const handleSend = () => {
     if (!input.trim() || loading) return;
-
     const userMsg: Message = { id: Date.now(), text: input.trim(), role: "user" };
     const loadingMsg: Message = { id: Date.now() + 1, text: "Analyzing symptoms...", role: "bot" };
 
@@ -138,16 +140,11 @@ const ChatPage = () => {
   };
 
   return (
-    <SidebarProvider defaultOpen={false} open={sidebarOpen} onOpenChange={setSidebarOpen}>
-      <div className="flex h-screen w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <SidebarProvider defaultOpen>
+      <div className="h-screen w-full bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 
-        {/* Sidebar */}
-        <Sidebar
-          side="left"
-          variant="sidebar"
-          collapsible="icon"
-          className="md:flex"
-        >
+        {/* Desktop Sidebar */}
+        <Sidebar side="left" variant="sidebar" collapsible="icon" className="hidden w-fit md:flex">
           <SidebarContent>
             <ChatHistory
               onSelectSession={(session: ChatSession) => {
@@ -159,13 +156,11 @@ const ChatPage = () => {
                 );
                 setCurrentSessionId(session.id);
                 setShowNewChat(false);
-                setSidebarOpen(false); // close after selecting in mobile
               }}
               onCreateNew={() => {
                 setMessages([]);
                 setCurrentSessionId(null);
                 setShowNewChat(false);
-                setSidebarOpen(false);
               }}
             />
           </SidebarContent>
@@ -174,22 +169,38 @@ const ChatPage = () => {
         {/* Chat Area */}
         <div className="flex-1 flex flex-col h-screen relative">
 
-          {/* Mobile History Toggle */}
-          <button
-            className="md:hidden absolute top-3 left-3 z-10 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md"
-            onClick={() => setSidebarOpen((prev) => !prev)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path
-                fillRule="evenodd"
-                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
+          {/* Mobile ChatHistory via Sheet */}
+          <div className="md:hidden absolute top-3 left-3 z-2">
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md">
+                  <Menu className="h-5 w-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-72">
+                <ChatHistory
+                  onSelectSession={(session: ChatSession) => {
+                    setMessages(
+                      session.messages.map((msg) => ({
+                        ...msg,
+                        id: Date.now() + Math.random(),
+                      }))
+                    );
+                    setCurrentSessionId(session.id);
+                    setShowNewChat(false);
+                  }}
+                  onCreateNew={() => {
+                    setMessages([]);
+                    setCurrentSessionId(null);
+                    setShowNewChat(false);
+                  }}
+                />
+              </SheetContent>
+            </Sheet>
+          </div>
 
           {/* Header */}
-          <header className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <header className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 w-full pl-14">
             <button
               className={`flex items-center gap-2 flex-1 ${messages.length > 0 ? 'cursor-pointer' : 'cursor-default'}`}
               onClick={() => {
@@ -208,7 +219,7 @@ const ChatPage = () => {
           </header>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 dark:bg-gray-900 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 bg-gray-100 dark:bg-gray-950 custom-scrollbar">
             {messages.length > 0 ? (
               <div className="max-w-3xl mx-auto w-full px-2 space-y-4">
                 {messages.map((msg) => (
@@ -218,8 +229,8 @@ const ChatPage = () => {
                   >
                     <div
                       className={`w-fit max-w-[85%] xs:max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base shadow-md ${msg.role === "user"
-                          ? "bg-blue-600 text-white rounded-br-sm"
-                          : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
+                        ? "bg-blue-600 text-white rounded-br-sm"
+                        : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
                         }`}
                     >
                       {msg.text}
@@ -237,19 +248,21 @@ const ChatPage = () => {
                 <div ref={chatEndRef} />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full -mt-16">
-                <div className="max-w-2xl text-center px-4 mb-8">
-                  <h2 className="text-3xl font-bold mb-4">Welcome to HealthMate Chat</h2>
-                  <p className="text-lg text-gray-600 dark:text-gray-400">
-                    Describe your symptoms to get personalized health advice
-                  </p>
+              <div className="flex flex-col items-center justify-center h-full -mt-16 px-4">
+                <div className="max-w-md text-center space-y-6">
+                  <div className="space-y-2">
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Welcome to HealthMate Chat</h2>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">
+                      Describe your symptoms to get personalized health advice
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
           {/* Input */}
-          <div className="sticky bottom-0 flex justify-center px-3 sm:px-4 pb-3 sm:pb-4 bg-gray-50 dark:bg-gray-900">
+          <div className="sticky bottom-0 flex justify-center px-3 sm:px-4 pb-4 sm:pb-4 bg-gray-100 dark:bg-gray-900 mb-1.5">
             <div className="w-full max-w-3xl">
               {showNewChat ? (
                 <div className="flex justify-center">
@@ -293,3 +306,4 @@ const ChatPage = () => {
 };
 
 export default ChatPage;
+
