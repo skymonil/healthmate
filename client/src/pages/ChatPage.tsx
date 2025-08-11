@@ -275,7 +275,7 @@ const ChatPage = () => {
           </div>
 
           {/* Input */}
-          <div className="sticky bottom-0 flex justify-center px-3 sm:px-4 pb-4 sm:pb-4 bg-gray-100 dark:bg-gray-900 mb-1.5">
+          <div className="sticky bottom-0 flex justify-center px-3 sm:px-4 pb-4 sm:pb-4 bg-gray-100 dark:bg-gray-950 mb-1.5">
             <div className="w-full max-w-3xl">
               {showNewChat ? (
                 <div className="flex justify-center">
