@@ -12,6 +12,7 @@ import {
   SheetTrigger,
   SheetContent,
 } from "@/components/ui/sheet";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 
 interface Message {
@@ -35,7 +36,7 @@ const ChatPage = () => {
   const [showNewChat, setShowNewChat] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [_isSharedChat, setIsSharedChat] = useState(false);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  // const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Parse shared chat from URL
@@ -144,25 +145,37 @@ const ChatPage = () => {
       <div className="h-screen w-full bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 
         {/* Desktop Sidebar */}
-        <Sidebar side="left" variant="sidebar" collapsible="icon" className="hidden w-fit md:flex">
+        <Sidebar side="left" variant="sidebar" collapsible="icon" className="w-fit flex">
           <SidebarContent>
-            <ChatHistory
-              onSelectSession={(session: ChatSession) => {
-                setMessages(
-                  session.messages.map((msg) => ({
-                    ...msg,
-                    id: Date.now() + Math.random(),
-                  }))
-                );
-                setCurrentSessionId(session.id);
-                setShowNewChat(false);
-              }}
-              onCreateNew={() => {
-                setMessages([]);
-                setCurrentSessionId(null);
-                setShowNewChat(false);
-              }}
-            />
+            <div className="flex flex-col items-center justify-between h-full">
+              <div className="pt-2">
+                <ChatHistory
+                  onSelectSession={(session: ChatSession) => {
+                    setMessages(
+                      session.messages.map((msg) => ({
+                        ...msg,
+                        id: Date.now() + Math.random(),
+                      }))
+                    );
+                    setCurrentSessionId(session.id);
+                    setShowNewChat(false);
+                  }}
+                  onCreateNew={() => {
+                    setMessages([]);
+                    setCurrentSessionId(null);
+                    setShowNewChat(false);
+                  }}
+                />
+              </div>
+
+              <div className="pb-4">
+                <Avatar className="h-8 w-8 border border-gray-200 dark:border-gray-700 bg-blue-500 dark:bg-blue-600">
+                  <AvatarFallback className="text-white font-semibold">
+                    {"C"}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
           </SidebarContent>
         </Sidebar>
 
@@ -170,7 +183,7 @@ const ChatPage = () => {
         <div className="flex-1 flex flex-col h-screen relative">
 
           {/* Mobile ChatHistory via Sheet */}
-          <div className="md:hidden absolute top-3 left-3 z-2">
+          <div className="md:hidden absolute top-3 left-3 z-50">
             <Sheet>
               <SheetTrigger asChild>
                 <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md">
@@ -262,7 +275,7 @@ const ChatPage = () => {
           </div>
 
           {/* Input */}
-          <div className="sticky bottom-0 flex justify-center px-3 sm:px-4 pb-4 sm:pb-4 bg-gray-100 dark:bg-gray-900 mb-1.5">
+          <div className="sticky bottom-0 flex justify-center px-3 sm:px-4 pb-4 sm:pb-4 bg-gray-100 dark:bg-gray-950 mb-1.5">
             <div className="w-full max-w-3xl">
               {showNewChat ? (
                 <div className="flex justify-center">
