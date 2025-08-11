@@ -36,7 +36,7 @@ const ChatPage = () => {
   const [showNewChat, setShowNewChat] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [_isSharedChat, setIsSharedChat] = useState(false);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  // const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Parse shared chat from URL
@@ -145,7 +145,7 @@ const ChatPage = () => {
       <div className="h-screen w-full bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 
         {/* Desktop Sidebar */}
-        <Sidebar side="left" variant="sidebar" collapsible="icon" className="hidden w-fit md:flex">
+        <Sidebar side="left" variant="sidebar" collapsible="icon" className="w-fit flex">
           <SidebarContent>
             <div className="flex flex-col items-center justify-between h-full">
               <div className="pt-2">
@@ -183,7 +183,7 @@ const ChatPage = () => {
         <div className="flex-1 flex flex-col h-screen relative">
 
           {/* Mobile ChatHistory via Sheet */}
-          <div className="md:hidden absolute top-3 left-3 z-2">
+          <div className="md:hidden absolute top-3 left-3 z-50">
             <Sheet>
               <SheetTrigger asChild>
                 <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md">
