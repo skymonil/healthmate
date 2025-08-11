@@ -247,25 +247,26 @@ const ChatHistory = ({
 
       {/* Account delete confirmation dialog */}
       <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
           <DialogHeader>
-            <DialogTitle className="text-gray-900 dark:text-gray-100">
+            <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Account
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
           </p>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              className="text-gray-700 dark:text-gray-200"
+              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-gray-700"
               onClick={() => setIsDeleteAccountOpen(false)}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
+              className="bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 text-white"
               onClick={() => {
                 console.log("Deleting account...");
                 toast.success("Account deleted");
@@ -281,25 +282,26 @@ const ChatHistory = ({
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!sessionToDelete} onOpenChange={() => setSessionToDelete(null)}>
-        <DialogContent>
+        <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
           <DialogHeader>
-            <DialogTitle className="text-gray-900 dark:text-gray-100">
+            <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Chat
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             Are you sure you want to delete "{sessionToDelete?.title}"? This cannot be undone.
           </p>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              className="text-gray-700 dark:text-gray-200"
+              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-gray-700"
               onClick={() => setSessionToDelete(null)}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
+              className="bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 text-white"
               onClick={handleDelete}
             >
               Delete
