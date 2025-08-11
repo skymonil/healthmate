@@ -249,25 +249,29 @@ const ChatHistory = ({
       <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Account</DialogTitle>
+            <DialogTitle className="text-gray-900 dark:text-gray-100">
+              Delete Account
+            </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600 dark:text-gray-300">
             Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteAccountOpen(false)}>
+            <Button
+              variant="outline"
+              className="text-gray-700 dark:text-gray-200"
+              onClick={() => setIsDeleteAccountOpen(false)}
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={() => {
-                // Replace with your API call to delete account
                 console.log("Deleting account...");
                 toast.success("Account deleted");
                 setIsDeleteAccountOpen(false);
-                logout(); // optional if deletion also logs out user
+                logout();
               }}
-              className="bg-red-600 hover:bg-red-700"
             >
               Delete
             </Button>
@@ -279,14 +283,25 @@ const ChatHistory = ({
       <Dialog open={!!sessionToDelete} onOpenChange={() => setSessionToDelete(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Chat</DialogTitle>
+            <DialogTitle className="text-gray-900 dark:text-gray-100">
+              Delete Chat
+            </DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to delete "{sessionToDelete?.title}"? This cannot be undone.</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Are you sure you want to delete "{sessionToDelete?.title}"? This cannot be undone.
+          </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSessionToDelete(null)}>
+            <Button
+              variant="outline"
+              className="text-gray-700 dark:text-gray-200"
+              onClick={() => setSessionToDelete(null)}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+            >
               Delete
             </Button>
           </DialogFooter>
