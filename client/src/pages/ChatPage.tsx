@@ -12,6 +12,7 @@ import {
   SheetTrigger,
   SheetContent,
 } from "@/components/ui/sheet";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 
 interface Message {
@@ -146,23 +147,35 @@ const ChatPage = () => {
         {/* Desktop Sidebar */}
         <Sidebar side="left" variant="sidebar" collapsible="icon" className="hidden w-fit md:flex">
           <SidebarContent>
-            <ChatHistory
-              onSelectSession={(session: ChatSession) => {
-                setMessages(
-                  session.messages.map((msg) => ({
-                    ...msg,
-                    id: Date.now() + Math.random(),
-                  }))
-                );
-                setCurrentSessionId(session.id);
-                setShowNewChat(false);
-              }}
-              onCreateNew={() => {
-                setMessages([]);
-                setCurrentSessionId(null);
-                setShowNewChat(false);
-              }}
-            />
+            <div className="flex flex-col items-center justify-between h-full">
+              <div className="pt-2">
+                <ChatHistory
+                  onSelectSession={(session: ChatSession) => {
+                    setMessages(
+                      session.messages.map((msg) => ({
+                        ...msg,
+                        id: Date.now() + Math.random(),
+                      }))
+                    );
+                    setCurrentSessionId(session.id);
+                    setShowNewChat(false);
+                  }}
+                  onCreateNew={() => {
+                    setMessages([]);
+                    setCurrentSessionId(null);
+                    setShowNewChat(false);
+                  }}
+                />
+              </div>
+
+              <div className="pb-4">
+                <Avatar className="h-8 w-8 border border-gray-200 dark:border-gray-700 bg-blue-500 dark:bg-blue-600">
+                  <AvatarFallback className="text-white font-semibold">
+                    {"C"}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
           </SidebarContent>
         </Sidebar>
 
