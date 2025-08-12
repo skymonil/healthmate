@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
+import ShinyText from '@/components/ui/ShinyText';
 
 interface Message {
   id: number;
@@ -145,7 +146,7 @@ const ChatPage = () => {
       <div className="h-screen w-full bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 
         {/* Desktop Sidebar */}
-        <Sidebar side="left" variant="sidebar" collapsible="icon" className="w-fit flex">
+        <Sidebar side="left" variant="sidebar" collapsible="icon" className="hidden w-fit sm:flex">
           <SidebarContent>
             <div className="flex flex-col items-center justify-between h-full">
               <div className="pt-2">
@@ -262,9 +263,20 @@ const ChatPage = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full -mt-16 px-4">
-                <div className="max-w-md text-center space-y-6">
+                <div className="max-w-lg text-center space-y-6">
                   <div className="space-y-2">
-                    <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Welcome to HealthMate Chat</h2>
+                    <h2
+                      className="text-4xl font-bold bg-clip-text text-transparent"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(120deg, #2563eb, #60a5fa, rgba(180, 180, 180,0.8) 50%, #60a5fa, #2563eb)",
+                        backgroundSize: "200% 100%",
+                        animation: "shine 5s linear infinite",
+                      }}
+                    >
+                      Welcome to HealthMate Chat
+                    </h2>
+                    {/* <ShinyText text="Welcome to HealthMate Chat!" disabled={false} speed={3} className='custom-class' /> */}
                     <p className="text-lg text-gray-600 dark:text-gray-400">
                       Describe your symptoms to get personalized health advice
                     </p>
