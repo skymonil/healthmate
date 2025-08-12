@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
-import ShinyText from '@/components/ui/ShinyText';
+import StarBorder from '@/components/ui/StarBorder';
 
 interface Message {
   id: number;
@@ -303,24 +303,43 @@ const ChatPage = () => {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 sm:p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl w-full">
-                  <textarea
-                    className="flex-1 resize-none bg-transparent px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base text-gray-900 dark:text-white focus:outline-none focus:ring-0"
-                    rows={1}
-                    placeholder={loading ? "Analyzing..." : "Describe your symptoms..."}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    disabled={loading}
-                  />
-                  <button
-                    onClick={handleSend}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-16 sm:w-20"
-                    disabled={loading}
-                  >
-                    {loading ? "..." : "Send"}
-                  </button>
-                </div>
+                <StarBorder
+                  as="div"
+                  className="custom-class w-full"
+                  color="#22d3ee" // Tailwind cyan-400
+                  speed="5s"
+                  thickness={2}
+                >
+                  <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-2 w-full rounded-xl 
+                  bg-white/80 dark:bg-gray-800/80 
+                  backdrop-blur-sm 
+                  border border-gray-200 dark:border-gray-700 w-full">
+                    <textarea
+                      className="flex-1 resize-none bg-transparent px-2 sm:px-3 py-1 sm:py-2 
+                 text-sm sm:text-base text-gray-900 dark:text-white 
+                 placeholder-gray-500 dark:placeholder-gray-400
+                 focus:outline-none focus:ring-0"
+                      rows={1}
+                      placeholder={loading ? "Analyzing..." : "Describe your symptoms..."}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      disabled={loading}
+                    />
+                    <button
+                      onClick={handleSend}
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 
+                 hover:from-blue-600 hover:to-blue-700 
+                 text-white font-semibold px-3 sm:px-4 py-1 sm:py-2 
+                 rounded-md transition-all duration-200 
+                 disabled:opacity-50 disabled:cursor-not-allowed 
+                 w-16 sm:w-20"
+                      disabled={loading}
+                    >
+                      {loading ? "..." : "Send"}
+                    </button>
+                  </div>
+                </StarBorder>
               )}
             </div>
           </div>
