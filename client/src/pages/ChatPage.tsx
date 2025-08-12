@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
+import StarBorder from '@/components/ui/StarBorder';
 
 interface Message {
   id: number;
@@ -145,7 +146,7 @@ const ChatPage = () => {
       <div className="h-screen w-full bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 
         {/* Desktop Sidebar */}
-        <Sidebar side="left" variant="sidebar" collapsible="icon" className="w-fit flex">
+        <Sidebar side="left" variant="sidebar" collapsible="icon" className="hidden w-fit sm:flex">
           <SidebarContent>
             <div className="flex flex-col items-center justify-between h-full">
               <div className="pt-2">
@@ -262,9 +263,20 @@ const ChatPage = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full -mt-16 px-4">
-                <div className="max-w-md text-center space-y-6">
+                <div className="max-w-lg text-center space-y-6">
                   <div className="space-y-2">
-                    <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Welcome to HealthMate Chat</h2>
+                    <h2
+                      className="text-4xl font-bold bg-clip-text text-transparent"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(120deg, #2563eb, #60a5fa, rgba(180, 180, 180,0.8) 50%, #60a5fa, #2563eb)",
+                        backgroundSize: "200% 100%",
+                        animation: "shine 5s linear infinite",
+                      }}
+                    >
+                      Welcome to HealthMate Chat
+                    </h2>
+                    {/* <ShinyText text="Welcome to HealthMate Chat!" disabled={false} speed={3} className='custom-class' /> */}
                     <p className="text-lg text-gray-600 dark:text-gray-400">
                       Describe your symptoms to get personalized health advice
                     </p>
@@ -291,24 +303,43 @@ const ChatPage = () => {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 sm:p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl w-full">
-                  <textarea
-                    className="flex-1 resize-none bg-transparent px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base text-gray-900 dark:text-white focus:outline-none focus:ring-0"
-                    rows={1}
-                    placeholder={loading ? "Analyzing..." : "Describe your symptoms..."}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    disabled={loading}
-                  />
-                  <button
-                    onClick={handleSend}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-16 sm:w-20"
-                    disabled={loading}
-                  >
-                    {loading ? "..." : "Send"}
-                  </button>
-                </div>
+                <StarBorder
+                  as="div"
+                  className="custom-class w-full"
+                  color="#22d3ee" // Tailwind cyan-400
+                  speed="5s"
+                  thickness={2}
+                >
+                  <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-2 w-full rounded-xl 
+                  bg-white/80 dark:bg-gray-800/80 
+                  backdrop-blur-sm 
+                  border border-gray-200 dark:border-gray-700 w-full">
+                    <textarea
+                      className="flex-1 resize-none bg-transparent px-2 sm:px-3 py-1 sm:py-2 
+                 text-sm sm:text-base text-gray-900 dark:text-white 
+                 placeholder-gray-500 dark:placeholder-gray-400
+                 focus:outline-none focus:ring-0"
+                      rows={1}
+                      placeholder={loading ? "Analyzing..." : "Describe your symptoms..."}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      disabled={loading}
+                    />
+                    <button
+                      onClick={handleSend}
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 
+                 hover:from-blue-600 hover:to-blue-700 
+                 text-white font-semibold px-3 sm:px-4 py-1 sm:py-2 
+                 rounded-md transition-all duration-200 
+                 disabled:opacity-50 disabled:cursor-not-allowed 
+                 w-16 sm:w-20"
+                      disabled={loading}
+                    >
+                      {loading ? "..." : "Send"}
+                    </button>
+                  </div>
+                </StarBorder>
               )}
             </div>
           </div>
