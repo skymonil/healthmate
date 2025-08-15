@@ -18,10 +18,11 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import * as SheetPrimitive from "@radix-ui/react-dialog"
 
 interface ChatSession {
   id: string;
@@ -34,11 +35,11 @@ interface ChatSession {
 const ChatHistory = ({
   onSelectSession,
   onCreateNew,
-  autoOpen
+  mobileView
 }: {
   onSelectSession: (session: ChatSession) => void;
   onCreateNew: () => void;
-  autoOpen: boolean;
+  mobileView: boolean;
 }) => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +62,7 @@ const ChatHistory = ({
   });
 
   useEffect(() => {
-    autoOpen? setIsOpen(true) : setIsOpen(false);
+    mobileView ? setIsOpen(true) : setIsOpen(false);
     const savedSessions = localStorage.getItem("chatSessions");
     if (savedSessions) {
       setSessions(JSON.parse(savedSessions));
@@ -93,12 +94,7 @@ const ChatHistory = ({
       {/* Mobile Menu Button */}
       <button
         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition"
-        onClick={() => {
-          setIsOpen(true);
-          console.log('====================================');
-          console.log('Mobile menu button clicked');
-          console.log('====================================');
-        }}
+        onClick={() => setIsOpen(true)}
       >
         <Menu className="h-6 w-6" />
       </button>
@@ -115,7 +111,7 @@ const ChatHistory = ({
             className="fixed inset-y-0 left-0 w-72 sm:w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-2xl z-50 flex flex-col animate-slide-in"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
+            {!mobileView ? <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
               <button
                 className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors"
                 onClick={onCreateNew}
@@ -129,7 +125,27 @@ const ChatHistory = ({
               >
                 <X className="h-5 w-5" />
               </button>
-            </div>
+            </div> :
+
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
+                <button
+                  onClick={onCreateNew}
+                  className="flex items-center gap-2 font-semibold text-lg px-2 py-1 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  <img src={logo} alt="HealthMate" className="h-6 w-6 rounded-sm shadow-sm" />
+                  <span className="tracking-tight">HealthMate</span>
+                </button>
+
+                <SheetPrimitive.Close asChild>
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    <X className="h-5 w-5" />
+                    <span className="sr-only">Close</span>
+                  </button>
+                </SheetPrimitive.Close>
+              </div>}
 
             {/* New Chat + Search */}
             <div className="p-3 space-y-3 border-b border-gray-100 dark:border-gray-800">
@@ -256,6 +272,8 @@ const ChatHistory = ({
       {/* Account delete confirmation dialog */}
       <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
         <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <DialogTitle>Delete Account Settings</DialogTitle>
+          <DialogDescription>dialog-box for deleting account.</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Account
@@ -291,6 +309,8 @@ const ChatHistory = ({
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!sessionToDelete} onOpenChange={() => setSessionToDelete(null)}>
         <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <DialogTitle>Delete Chat</DialogTitle>
+          <DialogDescription>dialog-box for deleting chat.</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Chat
