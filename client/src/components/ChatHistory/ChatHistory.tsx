@@ -8,7 +8,7 @@ import {
   ChevronUp,
   Trash2,
 } from "lucide-react";
-import logo from "../../../public/logo.png";
+import logo from "/logo.png";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -34,9 +34,11 @@ interface ChatSession {
 const ChatHistory = ({
   onSelectSession,
   onCreateNew,
+  autoOpen
 }: {
   onSelectSession: (session: ChatSession) => void;
   onCreateNew: () => void;
+  autoOpen: boolean;
 }) => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -59,6 +61,7 @@ const ChatHistory = ({
   });
 
   useEffect(() => {
+    autoOpen? setIsOpen(true) : setIsOpen(false);
     const savedSessions = localStorage.getItem("chatSessions");
     if (savedSessions) {
       setSessions(JSON.parse(savedSessions));
@@ -90,7 +93,12 @@ const ChatHistory = ({
       {/* Mobile Menu Button */}
       <button
         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition"
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true);
+          console.log('====================================');
+          console.log('Mobile menu button clicked');
+          console.log('====================================');
+        }}
       >
         <Menu className="h-6 w-6" />
       </button>

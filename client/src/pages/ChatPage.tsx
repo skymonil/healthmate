@@ -142,7 +142,7 @@ const ChatPage = () => {
   };
 
   return (
-    <SidebarProvider defaultOpen>
+    <SidebarProvider defaultOpen={true}>
       <div className="h-screen w-full bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 
         {/* Desktop Sidebar */}
@@ -166,6 +166,7 @@ const ChatPage = () => {
                     setCurrentSessionId(null);
                     setShowNewChat(false);
                   }}
+                  autoOpen={false}
                 />
               </div>
 
@@ -208,6 +209,7 @@ const ChatPage = () => {
                     setCurrentSessionId(null);
                     setShowNewChat(false);
                   }}
+                  autoOpen={true}
                 />
               </SheetContent>
             </Sheet>
