@@ -70,6 +70,8 @@ const ChatHistory = ({
   }, []);
 
   const handleNewChat = () => {
+    setSearchTerm("");
+    setSessionToDelete(null);
     onCreateNew();
     setIsOpen(false);
   };
@@ -149,13 +151,15 @@ const ChatHistory = ({
 
             {/* New Chat + Search */}
             <div className="p-3 space-y-3 border-b border-gray-100 dark:border-gray-800">
-              <button
-                onClick={handleNewChat}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
-              >
-                <Plus size={16} />
-                New Chat
-              </button>
+              <SheetPrimitive.Close asChild>
+                <button
+                  onClick={handleNewChat}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                >
+                  <Plus size={16} />
+                  New Chat
+                </button>
+              </SheetPrimitive.Close>
 
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
