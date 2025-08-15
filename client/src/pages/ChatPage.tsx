@@ -142,7 +142,7 @@ const ChatPage = () => {
   };
 
   return (
-    <SidebarProvider defaultOpen>
+    <SidebarProvider defaultOpen={false}>
       <div className="h-screen w-full bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 
         {/* Desktop Sidebar */}
@@ -166,6 +166,7 @@ const ChatPage = () => {
                     setCurrentSessionId(null);
                     setShowNewChat(false);
                   }}
+                  mobileView={false}
                 />
               </div>
 
@@ -208,6 +209,7 @@ const ChatPage = () => {
                     setCurrentSessionId(null);
                     setShowNewChat(false);
                   }}
+                  mobileView={true}
                 />
               </SheetContent>
             </Sheet>
@@ -310,7 +312,7 @@ const ChatPage = () => {
                   speed="5s"
                   thickness={2}
                 >
-                  <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-2 w-full rounded-xl 
+                  <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-xl 
                   bg-white/80 dark:bg-gray-800/80 
                   backdrop-blur-sm 
                   border border-gray-200 dark:border-gray-700 w-full">
