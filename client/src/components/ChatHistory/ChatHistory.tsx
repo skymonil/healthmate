@@ -23,7 +23,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import * as SheetPrimitive from "@radix-ui/react-dialog"
-
 interface ChatSession {
   id: string;
   title: string;

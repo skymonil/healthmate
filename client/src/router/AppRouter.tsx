@@ -12,8 +12,8 @@ export default function AppRouter() {
       <Routes>
         <Route
           path="/"
-          // element={isLoggedIn ? <Navigate to="/chat" /> : <AuthPage />}
-          element={<ChatPage />}
+          element={isLoggedIn ? <Navigate to="/chat" /> : <AuthPage />}
+          // element={<ChatPage />}
         />
         <Route
           path="/chat"
