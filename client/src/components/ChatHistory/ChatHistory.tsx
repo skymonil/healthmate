@@ -36,11 +36,13 @@ interface ChatSession {
 const ChatHistory = ({
   onSelectSession,
   onCreateNew,
-  mobileView
+  mobileView,
+  setIsOpenHamburger
 }: {
   onSelectSession: (session: ChatSession) => void;
   onCreateNew: () => void;
   mobileView: boolean;
+  setIsOpenHamburger: (openHamberger: boolean) => void;
 }) => {
   const { user, logout, setUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -75,8 +77,8 @@ const ChatHistory = ({
         const userDetails = await axios.get("http://localhost:8080/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
-        setUser(userDetails.data);  
+
+        setUser(userDetails.data);
       } catch (error) {
         console.error('Failed to fetch user details:', error);
       }
@@ -111,7 +113,10 @@ const ChatHistory = ({
       {/* Mobile Menu Button */}
       <button
         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition cursor-pointer"
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true)
+          setIsOpenHamburger(false)
+        }}
       >
         <Menu className="h-6 w-6" />
       </button>
@@ -121,7 +126,10 @@ const ChatHistory = ({
         <>
           <div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false)
+              setIsOpenHamburger(false)
+            }}
           />
 
           <div
@@ -166,17 +174,15 @@ const ChatHistory = ({
 
             {/* New Chat */}
             <div className="p-3 space-y-3 border-b border-gray-100 dark:border-gray-800">
-              <SheetPrimitive.Dialog>
-                <SheetPrimitive.Close asChild>
-                  <button
-                    onClick={handleNewChat}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition cursor-pointer"
-                  >
-                    <Plus size={16} />
-                    New Chat
-                  </button>
-                </SheetPrimitive.Close>
-              </SheetPrimitive.Dialog>
+              <SheetPrimitive.Close asChild>
+                <button
+                  onClick={handleNewChat}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                >
+                  <Plus size={16} />
+                  New Chat
+                </button>
+              </SheetPrimitive.Close>
 
               {/* Search */}
               <div className="relative">
@@ -200,33 +206,35 @@ const ChatHistory = ({
               ) : filteredSessions.length > 0 ? (
                 <ul className="divide-y divide-gray-100 dark:divide-gray-800">
                   {filteredSessions.map((session) => (
-                    <li
-                      key={session.id}
-                      className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition rounded-md"
-                      onClick={() => {
-                        onSelectSession(session);
-                        setIsOpen(false);
-                      }}
-                    >
-                      <div className="flex justify-between items-center">
-                        <div className="font-medium text-sm truncate flex-1">
-                          {session.title}
+                    <SheetPrimitive.Close asChild key={session.id}>
+                      <li
+                        key={session.id}
+                        className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition rounded-md"
+                        onClick={() => {
+                          onSelectSession(session);
+                          setIsOpen(false);
+                        }}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="font-medium text-sm truncate flex-1">
+                            {session.title}
+                          </div>
+                          <button
+                            className="p-1 ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-300 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              confirmDelete(session);
+                            }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
-                        <button
-                          className="p-1 ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-300 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            confirmDelete(session);
-                          }}
-                          onMouseDown={(e) => e.stopPropagation()}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {session.lastMessage}
-                      </div>
-                    </li>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          {session.lastMessage}
+                        </div>
+                      </li>
+                    </SheetPrimitive.Close>
                   ))}
                 </ul>
               ) : (
@@ -294,6 +302,8 @@ const ChatHistory = ({
       {/* Account delete confirmation dialog */}
       <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
         <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <DialogTitle>Delete Account Settings</DialogTitle>
+          <DialogDescription>dialog-box for deleting account.</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Account
@@ -329,6 +339,8 @@ const ChatHistory = ({
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!sessionToDelete} onOpenChange={() => setSessionToDelete(null)}>
         <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <DialogTitle>Delete Chat</DialogTitle>
+          <DialogDescription>dialog-box for deleting chat.</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Chat

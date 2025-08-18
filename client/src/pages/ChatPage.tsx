@@ -34,6 +34,7 @@ const ChatPage = () => {
   const [showNewChat, setShowNewChat] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [_isSharedChat, setIsSharedChat] = useState(false);
+  const [isOpenHamburger, setIsOpenHamburger] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
@@ -185,6 +186,7 @@ const ChatPage = () => {
                     setShowNewChat(false);
                   }}
                   mobileView={false}
+                  setIsOpenHamburger={setIsOpenHamburger}
                 />
               </div>
 
@@ -201,9 +203,11 @@ const ChatPage = () => {
 
         <div className="flex-1 flex flex-col h-screen relative">
           <div className="md:hidden absolute top-3 left-3 z-50">
-            <Sheet>
+            <Sheet open={isOpenHamburger} onOpenChange={setIsOpenHamburger}>
               <SheetTrigger asChild>
-                <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md cursor-pointer">
+                <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md cursor-pointer"
+                  onClick={() => setIsOpenHamburger(true)}
+                >
                   <Menu className="h-5 w-5" />
                 </button>
               </SheetTrigger>
@@ -225,6 +229,7 @@ const ChatPage = () => {
                     setShowNewChat(false);
                   }}
                   mobileView={true}
+                  setIsOpenHamburger={setIsOpenHamburger}
                 />
               </SheetContent>
             </Sheet>
@@ -232,9 +237,8 @@ const ChatPage = () => {
 
           <header className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 w-full pl-14">
             <button
-              className={`flex items-center gap-2 flex-1 ${
-                messages.length > 0 ? "cursor-pointer" : "cursor-default"
-              }`}
+              className={`flex items-center gap-2 flex-1 ${messages.length > 0 ? "cursor-pointer" : "cursor-default"
+                }`}
               onClick={() => {
                 if (messages.length > 0) {
                   setMessages([]);
@@ -256,18 +260,16 @@ const ChatPage = () => {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${
-                      msg.role === "user"
+                    className={`flex ${msg.role === "user"
                         ? "justify-end"
                         : "justify-start flex-col"
-                    }`}
+                      }`}
                   >
                     <div
-                      className={`w-fit max-w-[85%] xs:max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base shadow-md ${
-                        msg.role === "user"
+                      className={`w-fit max-w-[85%] xs:max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base shadow-md ${msg.role === "user"
                           ? "bg-blue-600 text-white rounded-br-sm"
                           : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
-                      }`}
+                        }`}
                     >
                       {msg.text}
                     </div>
