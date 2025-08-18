@@ -110,7 +110,7 @@ const ChatHistory = ({
     <div className="relative">
       {/* Mobile Menu Button */}
       <button
-        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition"
+        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition cursor-pointer"
         onClick={() => setIsOpen(true)}
       >
         <Menu className="h-6 w-6" />
@@ -133,12 +133,12 @@ const ChatHistory = ({
                 className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors"
                 onClick={onCreateNew}
               >
-                <img src={logo} alt="HealthMate" className="h-5 w-5" />
+                <img src={logo} alt="HealthMate" className="size-9" />
                 <span>HealthMate</span>
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -170,7 +170,7 @@ const ChatHistory = ({
                 <SheetPrimitive.Close asChild>
                   <button
                     onClick={handleNewChat}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition cursor-pointer"
                   >
                     <Plus size={16} />
                     New Chat
@@ -213,7 +213,7 @@ const ChatHistory = ({
                           {session.title}
                         </div>
                         <button
-                          className="p-1 ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-300"
+                          className="p-1 ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-300 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             confirmDelete(session);
@@ -255,9 +255,9 @@ const ChatHistory = ({
                       </span>
                     </div>
                     {isOpenDialog ? (
-                      <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400 cursor-pointer" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 cursor-pointer" />
                     )}
                   </button>
                 </DropdownMenuTrigger>
@@ -294,8 +294,6 @@ const ChatHistory = ({
       {/* Account delete confirmation dialog */}
       <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
         <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-          <DialogTitle>Delete Account Settings</DialogTitle>
-          <DialogDescription>dialog-box for deleting account.</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Account
@@ -307,14 +305,14 @@ const ChatHistory = ({
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-gray-700"
+              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-gray-700 cursor-pointer"
               onClick={() => setIsDeleteAccountOpen(false)}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              className="bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 text-white"
+              className="bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 text-white cursor-pointer"
               onClick={() => {
                 console.log("Deleting account...");
                 toast.success("Account deleted");
@@ -331,8 +329,6 @@ const ChatHistory = ({
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!sessionToDelete} onOpenChange={() => setSessionToDelete(null)}>
         <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-          <DialogTitle>Delete Chat</DialogTitle>
-          <DialogDescription>dialog-box for deleting chat.</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Chat
@@ -344,14 +340,14 @@ const ChatHistory = ({
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-gray-700"
+              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-gray-700 cursor-pointer"
               onClick={() => setSessionToDelete(null)}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              className="bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 text-white"
+              className="bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 text-white cursor-pointer"
               onClick={handleDelete}
             >
               Delete
