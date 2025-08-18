@@ -187,6 +187,7 @@ const ChatPage = () => {
                   }}
                   mobileView={false}
                   setIsOpenHamburger={setIsOpenHamburger}
+                  setShowNewChat={setShowNewChat}
                 />
               </div>
 
@@ -230,6 +231,7 @@ const ChatPage = () => {
                   }}
                   mobileView={true}
                   setIsOpenHamburger={setIsOpenHamburger}
+                  setShowNewChat={setShowNewChat}
                 />
               </SheetContent>
             </Sheet>

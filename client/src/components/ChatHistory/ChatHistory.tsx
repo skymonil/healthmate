@@ -37,12 +37,14 @@ const ChatHistory = ({
   onSelectSession,
   onCreateNew,
   mobileView,
-  setIsOpenHamburger
+  setIsOpenHamburger,
+  setShowNewChat
 }: {
   onSelectSession: (session: ChatSession) => void;
   onCreateNew: () => void;
   mobileView: boolean;
   setIsOpenHamburger: (openHamberger: boolean) => void;
+  setShowNewChat: (showNewChat: boolean) => void;
 }) => {
   const { user, logout, setUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -114,8 +116,8 @@ const ChatHistory = ({
       <button
         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition cursor-pointer"
         onClick={() => {
-          setIsOpen(true)
           setIsOpenHamburger(false)
+          setIsOpen(true)
         }}
       >
         <Menu className="h-6 w-6" />
@@ -139,13 +141,21 @@ const ChatHistory = ({
             {!mobileView ? <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
               <button
                 className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors"
-                onClick={onCreateNew}
+                onClick={() => {
+                  onCreateNew();
+                  setIsOpenHamburger(false);
+                  setIsOpen(false);
+                  setShowNewChat(false);
+                }}
               >
                 <img src={logo} alt="HealthMate" className="size-9" />
                 <span>HealthMate</span>
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpenHamburger(false)
+                  setIsOpen(false)
+                }}
                 className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer"
               >
                 <X className="h-5 w-5" />
@@ -154,7 +164,12 @@ const ChatHistory = ({
 
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
                 <button
-                  onClick={onCreateNew}
+                  onClick={() => {
+                    onCreateNew();
+                    setIsOpenHamburger(false);
+                    setIsOpen(false);
+                    setShowNewChat(false);
+                  }}
                   className="flex items-center gap-2 font-semibold text-lg px-2 py-1 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                   <img src={logo} alt="HealthMate" className="h-6 w-6 rounded-sm shadow-sm" />
@@ -213,6 +228,8 @@ const ChatHistory = ({
                         onClick={() => {
                           onSelectSession(session);
                           setIsOpen(false);
+                          setIsOpenHamburger(false);
+                          setShowNewChat(false);
                         }}
                       >
                         <div className="flex justify-between items-center">
