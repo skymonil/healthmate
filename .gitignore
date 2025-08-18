@@ -8,6 +8,8 @@ client/.env.development
 client/.env.production
 client/.env.test
 
+.env
+
 # React artifacts
 client/.next/
 client/.cache/

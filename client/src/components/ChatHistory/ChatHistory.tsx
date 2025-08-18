@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import axios from "axios";
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 
 interface ChatSession {
@@ -41,7 +42,7 @@ const ChatHistory = ({
   onCreateNew: () => void;
   mobileView: boolean;
 }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, setUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,6 +68,20 @@ const ChatHistory = ({
     if (savedSessions) {
       setSessions(JSON.parse(savedSessions));
     }
+
+    const fetchUserDetails = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userDetails = await axios.get("http://localhost:8080/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        setUser(userDetails.data);  
+      } catch (error) {
+        console.error('Failed to fetch user details:', error);
+      }
+    };
+    fetchUserDetails();
   }, []);
 
   const handleNewChat = () => {
@@ -151,17 +166,17 @@ const ChatHistory = ({
 
             {/* New Chat */}
             <div className="p-3 space-y-3 border-b border-gray-100 dark:border-gray-800">
-                <SheetPrimitive.Dialog>
-                  <SheetPrimitive.Close asChild>
-                    <button
-                      onClick={handleNewChat}
-                      className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
-                    >
-                      <Plus size={16} />
-                      New Chat
-                    </button>
-                  </SheetPrimitive.Close>
-                </SheetPrimitive.Dialog>
+              <SheetPrimitive.Dialog>
+                <SheetPrimitive.Close asChild>
+                  <button
+                    onClick={handleNewChat}
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                  >
+                    <Plus size={16} />
+                    New Chat
+                  </button>
+                </SheetPrimitive.Close>
+              </SheetPrimitive.Dialog>
 
               {/* Search */}
               <div className="relative">
@@ -236,7 +251,7 @@ const ChatHistory = ({
                         {user?.name || "Chirag"}
                       </span>
                       <span className="text-xs text-gray-500 dark:text-gray-400">
-                        chiragvaru03@gmail.com
+                        {user?.email || "chiragvaru03@gmail.com"}
                       </span>
                     </div>
                     {isOpenDialog ? (

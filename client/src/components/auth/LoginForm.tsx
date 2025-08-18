@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 const LoginForm = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  // const { setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     email: "",
@@ -40,6 +41,12 @@ const LoginForm = () => {
       localStorage.setItem("userId", userId);
 
       login(token, userId);
+
+      // const userDetails = await axios.get("http://localhost:8080/api/auth/me", {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // });
+
+      // setUser(userDetails.data);
 
       toast.success("Login successful!", {
         description: "Welcome back!",
