@@ -24,4 +24,8 @@ npm run dev
 # Backend
 cd ../server
 ./mvnw spring-boot:run
+
+or 
+
+mvn spring-boot:run
 ```

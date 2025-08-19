@@ -37,12 +37,14 @@ const ChatHistory = ({
   onSelectSession,
   onCreateNew,
   mobileView,
-  setIsOpenHamburger
+  setIsOpenHamburger,
+  setShowNewChat
 }: {
   onSelectSession: (session: ChatSession) => void;
   onCreateNew: () => void;
   mobileView: boolean;
   setIsOpenHamburger: (openHamberger: boolean) => void;
+  setShowNewChat: (showNewChat: boolean) => void;
 }) => {
   const { user, logout, setUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -86,6 +88,22 @@ const ChatHistory = ({
     fetchUserDetails();
   }, []);
 
+  const handleDeleteAccount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete("http://localhost:8080/api/auth", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+      toast.success("Account deleted successfully");
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      toast.error("Failed to delete account. Please try again.");
+    }
+  }
+
   const handleNewChat = () => {
     setSearchTerm("");
     setSessionToDelete(null);
@@ -114,8 +132,8 @@ const ChatHistory = ({
       <button
         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition cursor-pointer"
         onClick={() => {
-          setIsOpen(true)
           setIsOpenHamburger(false)
+          setIsOpen(true)
         }}
       >
         <Menu className="h-6 w-6" />
@@ -139,13 +157,21 @@ const ChatHistory = ({
             {!mobileView ? <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
               <button
                 className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors"
-                onClick={onCreateNew}
+                onClick={() => {
+                  onCreateNew();
+                  setIsOpenHamburger(false);
+                  setIsOpen(false);
+                  setShowNewChat(false);
+                }}
               >
                 <img src={logo} alt="HealthMate" className="size-9" />
                 <span>HealthMate</span>
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpenHamburger(false)
+                  setIsOpen(false)
+                }}
                 className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer"
               >
                 <X className="h-5 w-5" />
@@ -154,7 +180,12 @@ const ChatHistory = ({
 
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
                 <button
-                  onClick={onCreateNew}
+                  onClick={() => {
+                    onCreateNew();
+                    setIsOpenHamburger(false);
+                    setIsOpen(false);
+                    setShowNewChat(false);
+                  }}
                   className="flex items-center gap-2 font-semibold text-lg px-2 py-1 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                   <img src={logo} alt="HealthMate" className="h-6 w-6 rounded-sm shadow-sm" />
@@ -174,15 +205,17 @@ const ChatHistory = ({
 
             {/* New Chat */}
             <div className="p-3 space-y-3 border-b border-gray-100 dark:border-gray-800">
-              <SheetPrimitive.Close asChild>
-                <button
-                  onClick={handleNewChat}
-                  className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
-                >
-                  <Plus size={16} />
-                  New Chat
-                </button>
-              </SheetPrimitive.Close>
+              <SheetPrimitive.Dialog>
+                <SheetPrimitive.Close asChild>
+                  <button
+                    onClick={handleNewChat}
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                  >
+                    <Plus size={16} />
+                    New Chat
+                  </button>
+                </SheetPrimitive.Close>
+              </SheetPrimitive.Dialog>
 
               {/* Search */}
               <div className="relative">
@@ -213,6 +246,8 @@ const ChatHistory = ({
                         onClick={() => {
                           onSelectSession(session);
                           setIsOpen(false);
+                          setIsOpenHamburger(false);
+                          setShowNewChat(false);
                         }}
                       >
                         <div className="flex justify-between items-center">
@@ -302,20 +337,18 @@ const ChatHistory = ({
       {/* Account delete confirmation dialog */}
       <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
         <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-          <DialogTitle>Delete Account Settings</DialogTitle>
-          <DialogDescription>dialog-box for deleting account.</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Account
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          <DialogDescription className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
-          </p>
+          </DialogDescription>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-gray-700 cursor-pointer"
+              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 dark:hover:bg-gray-700 cursor-pointer"
               onClick={() => setIsDeleteAccountOpen(false)}
             >
               Cancel
@@ -327,6 +360,7 @@ const ChatHistory = ({
                 console.log("Deleting account...");
                 toast.success("Account deleted");
                 setIsDeleteAccountOpen(false);
+                handleDeleteAccount();
                 logout();
               }}
             >
