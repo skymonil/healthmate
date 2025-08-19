@@ -88,6 +88,22 @@ const ChatHistory = ({
     fetchUserDetails();
   }, []);
 
+  const handleDeleteAccount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete("http://localhost:8080/api/auth", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+      toast.success("Account deleted successfully");
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      toast.error("Failed to delete account. Please try again.");
+    }
+  }
+
   const handleNewChat = () => {
     setSearchTerm("");
     setSessionToDelete(null);
@@ -321,20 +337,18 @@ const ChatHistory = ({
       {/* Account delete confirmation dialog */}
       <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
         <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-          <DialogTitle>Delete Account Settings</DialogTitle>
-          <DialogDescription>dialog-box for deleting account.</DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Account
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          <DialogDescription className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
-          </p>
+          </DialogDescription>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-gray-700 cursor-pointer"
+              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 dark:hover:bg-gray-700 cursor-pointer"
               onClick={() => setIsDeleteAccountOpen(false)}
             >
               Cancel
@@ -346,6 +360,7 @@ const ChatHistory = ({
                 console.log("Deleting account...");
                 toast.success("Account deleted");
                 setIsDeleteAccountOpen(false);
+                handleDeleteAccount();
                 logout();
               }}
             >
