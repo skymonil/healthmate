@@ -12,6 +12,8 @@ type AuthContextType = {
   login: (token: string, user: User) => void;
   logout: () => void;
   setUser: (user: User | null) => void;
+  prevChat: boolean | false;
+  setPrevChat?: (prevChat: boolean | false) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [prevChat, setPrevChat] = useState<boolean>(false);
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
@@ -44,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, token, login, logout, setUser, prevChat, setPrevChat }}>
       {children}
     </AuthContext.Provider>
   );
