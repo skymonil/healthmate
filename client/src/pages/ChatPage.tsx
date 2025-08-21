@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Share2, Menu, Send } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
+import DOMPurify from "dompurify";
 import ChatHistory from "@/components/ChatHistory/ChatHistory";
 import {
   SidebarProvider,
@@ -17,6 +19,7 @@ interface Message {
   id: number;
   text: string;
   role: "user" | "bot";
+  isHTML?: boolean;
 }
 
 type ChatSession = {
@@ -76,7 +79,7 @@ const ChatPage = () => {
     );
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim() || loading) return;
     const userMsg: Message = {
       id: Date.now(),
@@ -93,37 +96,47 @@ const ChatPage = () => {
     setInput("");
     setLoading(true);
 
-    setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === loadingMsg.id
-            ? { ...msg, text: "Preparing the best advice..." }
-            : msg
-        )
-      );
+    try {
+      const { data } = await axios.post('http://localhost:8080/api/diagnosis', {
+        userId: user?.id,
+        symptoms: input.trim()
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
 
-      setTimeout(() => {
-        const responseText =
-          "Based on your symptoms, here's a possible suggestion: Stay hydrated, rest well, and consult a doctor if symptoms persist.";
-        const responseMsg: Message = {
-          id: Date.now() + 2,
-          text: responseText,
-          role: "bot",
-        };
-
-        setMessages((prev) => {
-          const updated = [
-            ...prev.filter((m) => m.id !== loadingMsg.id),
-            responseMsg,
-          ];
-          saveSession(updated, responseText);
-          return updated;
-        });
-
-        setLoading(false);
-        setShowNewChat(true);
-      }, 1500);
-    }, 1500);
+      setMessages((prev) => {
+        const updated = [
+          ...prev.filter((m) => m.id !== loadingMsg.id),
+          {
+            id: Date.now() + 2,
+            text: data.diagnosis,
+            role: "bot" as const,
+            isHTML: true
+          }
+        ];
+        saveSession(updated, data.diagnosis);
+        return updated;
+      });
+    } catch (error) {
+      setMessages((prev) => {
+        const updated = [
+          ...prev.filter((m) => m.id !== loadingMsg.id),
+          {
+            id: Date.now() + 2,
+            text: "Error analyzing symptoms. Please try again later.",
+            role: "bot" as const
+          }
+        ];
+        saveSession(updated, "Error analyzing symptoms");
+        return updated;
+      });
+    } finally {
+      setLoading(false);
+      setShowNewChat(true);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -175,6 +188,7 @@ const ChatPage = () => {
                       session.messages.map((msg) => ({
                         ...msg,
                         id: Date.now() + Math.random(),
+                        role: msg.role as "user" | "bot"
                       }))
                     );
                     setCurrentSessionId(session.id);
@@ -219,6 +233,7 @@ const ChatPage = () => {
                       session.messages.map((msg) => ({
                         ...msg,
                         id: Date.now() + Math.random(),
+                        role: msg.role as "user" | "bot"
                       }))
                     );
                     setCurrentSessionId(session.id);
@@ -272,9 +287,11 @@ const ChatPage = () => {
                           ? "bg-blue-600 text-white rounded-br-sm"
                           : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
                         }`}
-                    >
-                      {msg.text}
-                    </div>
+                      dangerouslySetInnerHTML={msg.isHTML ?
+                        { __html: DOMPurify.sanitize(msg.text) } :
+                        { __html: msg.text }
+                      }
+                    />
                     {msg.role === "bot" && (
                       <button
                         onClick={() => handleShareMessage(msg.text)}
