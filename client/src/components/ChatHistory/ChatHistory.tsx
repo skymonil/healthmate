@@ -83,18 +83,18 @@ const ChatHistory = ({
 
         const backendSessions = response.data.map((report: any) => ({
           id: report.reportId,
-          title: `Report for ${new Date(report.createdAt).toLocaleDateString()}`,
+          title: report.symptoms?.substring(0, 50) + (report.symptoms?.length > 50 ? "..." : ""),
           lastMessage: report.diagnosis?.substring(0, 50) + (report.diagnosis?.length > 50 ? "..." : ""),
           timestamp: new Date(report.createdAt).getTime(),
           messages: [
-            { text: `Symptoms: ${report.symptoms}`, role: "user" as const },
+            { text: `${report.symptoms}`, role: "user" as const },
             { text: report.diagnosis, role: "bot" as const }
           ]
         }));
         setSessions(backendSessions);
       } catch (error) {
         console.error('Failed to fetch chat history:', error);
-        toast.error("Failed to load chat history");
+        // toast.error("Failed to load chat history");
       }
     };
 
