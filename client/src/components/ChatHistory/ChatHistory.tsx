@@ -25,24 +25,34 @@ import { toast } from "sonner";
 import axios from "axios";
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 
+/**
+ * Interface defining the structure of a chat session
+ * Represents a conversation between user and bot with messages and metadata
+ */
+
 interface ChatSession {
-  id: string;
-  title: string;
-  lastMessage: string;
-  timestamp: number;
-  messages: Array<{
-    text: string;
-    role: "user" | "bot";
-    isHTML?: boolean;
+  id: string;                    // Unique identifier for the chat session
+  title: string;                 // Title/description of the chat (truncated symptoms)
+  lastMessage: string;           // Last message in the conversation (truncated diagnosis)
+  timestamp: number;             // Timestamp when the session was created
+  messages: Array<{              // Array of messages in the conversation
+    text: string;                // Message content
+    role: "user" | "bot";        // Sender of the message
+    isHTML?: boolean;            // Flag indicating if message contains HTML content
   }>;
 }
 
+/**
+ * ChatHistory Component
+ * Sidebar component that displays user's chat history and account controls
+ * Handles session selection, creation, deletion, and user account management
+ */
 const ChatHistory = ({
-  onSelectSession,
-  onCreateNew,
-  mobileView,
-  setIsOpenHamburger,
-  setShowNewChat
+  onSelectSession,    // Callback when a chat session is selected
+  onCreateNew,        // Callback to create a new chat session
+  mobileView,         // Flag indicating if component is in mobile view
+  setIsOpenHamburger, // Function to control hamburger menu state
+  setShowNewChat      // Function to control new chat visibility
 }: {
   onSelectSession: (session: ChatSession) => void;
   onCreateNew: () => void;
@@ -50,29 +60,41 @@ const ChatHistory = ({
   setIsOpenHamburger: (openHamberger: boolean) => void;
   setShowNewChat: (showNewChat: boolean) => void;
 }) => {
-  const { user, logout, setUser } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isOpenDialog, setIsOpenDialog] = useState(false);
-  const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null);
-  const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
+  const { user, logout, setUser } = useAuth(); // Authentication context utilities
+  const [isOpen, setIsOpen] = useState(false); // State for sidebar visibility
+  const [sessions, setSessions] = useState<ChatSession[]>([]); // Array of chat sessions
+  const [searchTerm, setSearchTerm] = useState(""); // Search term for filtering sessions
+  const [isOpenDialog, setIsOpenDialog] = useState(false); // State for dropdown menu visibility
+  const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null); // Session marked for deletion
+  const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false); // State for account deletion dialog
 
+  /**
+   * Filters chat sessions based on search term
+   * Searches through session titles, last messages, and all message content
+   */
   const filteredSessions = sessions.filter((session) => {
-    if (!searchTerm) return true;
+    if (!searchTerm) return true; // Return all sessions if no search term
     const searchLower = searchTerm.toLowerCase();
     return (
-      session.title.toLowerCase().includes(searchLower) ||
-      session.lastMessage.toLowerCase().includes(searchLower) ||
-      session.messages.some((msg) =>
+      session.title.toLowerCase().includes(searchLower) || // Search in title
+      session.lastMessage.toLowerCase().includes(searchLower) || // Search in last message
+      session.messages.some((msg) => // Search in all messages
         msg.text.toLowerCase().includes(searchLower)
       )
     );
   });
 
+  /**
+   * Effect hook to initialize component state and fetch data
+   * Handles mobile view, chat history, and user details
+   */
   useEffect(() => {
-    mobileView ? setIsOpen(true) : setIsOpen(false);
+    mobileView ? setIsOpen(true) : setIsOpen(false); // Auto-open sidebar in mobile view
 
+    /**
+     * Fetches user's chat history from the backend API
+     * Maps backend response to ChatSession format
+     */
     const fetchChatHistory = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -81,14 +103,15 @@ const ChatHistory = ({
           headers: { Authorization: `Bearer ${token}` }
         });
 
+        // Transform backend data into ChatSession format
         const backendSessions = response.data.map((report: any) => ({
           id: report.reportId,
-          title: report.symptoms?.substring(0, 50) + (report.symptoms?.length > 50 ? "..." : ""),
-          lastMessage: report.diagnosis?.substring(0, 50) + (report.diagnosis?.length > 50 ? "..." : ""),
-          timestamp: new Date(report.createdAt).getTime(),
+          title: report.symptoms?.substring(0, 50) + (report.symptoms?.length > 50 ? "..." : ""), // Truncate symptoms for title
+          lastMessage: report.diagnosis?.substring(0, 50) + (report.diagnosis?.length > 50 ? "..." : ""), // Truncate diagnosis for preview
+          timestamp: new Date(report.createdAt).getTime(), // Convert to timestamp
           messages: [
-            { text: `${report.symptoms}`, role: "user" as const },
-            { text: report.diagnosis, role: "bot" as const }
+            { text: `${report.symptoms}`, role: "user" as const }, // User message with symptoms
+            { text: report.diagnosis, role: "bot" as const } // Bot message with diagnosis
           ]
         }));
         setSessions(backendSessions);
@@ -98,6 +121,10 @@ const ChatHistory = ({
       }
     };
 
+    /**
+     * Fetches current user details from the backend
+     * Updates auth context with user information
+     */
     const fetchUserDetails = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -110,19 +137,24 @@ const ChatHistory = ({
         console.error('Failed to fetch user details:', error);
       }
     };
+    
     fetchUserDetails();
     fetchChatHistory();
-  }, [user?.id]);
+  }, [user?.id]); // Dependency: re-fetch when user ID changes
 
+  /**
+   * Handles account deletion by making API call and cleaning up local storage
+   * Removes user token, user data, and updates auth state
+   */
   const handleDeleteAccount = async () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete("http://localhost:8080/api/auth", {
         headers: { Authorization: `Bearer ${token}` }
       });
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      setUser(null);
+      localStorage.removeItem("token"); // Clear authentication token
+      localStorage.removeItem("user"); // Clear user data
+      setUser(null); // Update auth context
       toast.success("Account deleted successfully");
     } catch (error) {
       console.error('Failed to delete account:', error);
@@ -130,19 +162,31 @@ const ChatHistory = ({
     }
   }
 
+  /**
+   * Handles creating a new chat session
+   * Resets search and deletion states, triggers parent callback, and closes sidebar
+   */
   const handleNewChat = () => {
-    setSearchTerm("");
-    setSessionToDelete(null);
-    onCreateNew();
-    setIsOpen(false);
+    setSearchTerm(""); // Clear search term
+    setSessionToDelete(null); // Clear any pending deletion
+    onCreateNew(); // Trigger parent callback
+    setIsOpen(false); // Close sidebar
   };
 
+  /**
+   * Initiates chat session deletion process
+   * Sets the session to be deleted for confirmation dialog
+   */
   const confirmDelete = (session: ChatSession) => {
-    setSessionToDelete(session);
+    setSessionToDelete(session); // Set session for deletion confirmation
   };
 
+  /**
+   * Deletes a chat session by making API call and updating local state
+   * Removes the session from both backend and UI
+   */
   const handleDelete = async () => {
-    if (!sessionToDelete) return;
+    if (!sessionToDelete) return; // Guard clause if no session to delete
 
     try {
       const token = localStorage.getItem("token");
