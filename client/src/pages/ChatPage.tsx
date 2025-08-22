@@ -15,6 +15,10 @@ import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 import StarBorder from "@/components/ui/StarBorder";
 import { useAuth } from "@/context/AuthContext";
 
+/**
+ * Interface defining the structure of a chat message
+ * Represents individual messages in a conversation between user and bot
+ */
 interface Message {
   id: number;
   text: string;
@@ -22,14 +26,23 @@ interface Message {
   isHTML?: boolean;
 }
 
+/**
+ * Type defining the structure of a chat session for local storage
+ * Represents a saved conversation with metadata
+ */
 type ChatSession = {
-  id: string;
-  title: string;
-  lastMessage: string;
-  timestamp: number;
-  messages: Array<{ text: string; role: "user" | "bot" }>;
+  id: string;                                        // Unique identifier for the chat session
+  title: string;                                     // Title/description of the chat
+  lastMessage: string;                               // Last message in the conversation
+  timestamp: number;                                 // Timestamp when the session was created
+  messages: Array<{ text: string; role: "user" | "bot" }>; // Array of messages in the conversation
 };
 
+/**
+ * Main ChatPage Component
+ * Primary interface for user-bot conversations with symptom analysis
+ * Handles message sending, session management, and UI interactions
+ */
 const ChatPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -41,6 +54,10 @@ const ChatPage = () => {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
+  /**
+   * Effect for handling shared chat URLs
+   * Parses URL parameters to load shared chat sessions when present
+   */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sharedChat = params.get("share");
@@ -55,10 +72,19 @@ const ChatPage = () => {
     }
   }, []);
 
+  /**
+   * Effect for handling shared chat URLs
+   * Parses URL parameters to load shared chat sessions when present
+   */
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  /**
+   * Saves chat session to local storage
+   * @param updatedMessages - Array of messages to save
+   * @param lastMessage - The most recent message content for session preview
+   */
   const saveSession = (updatedMessages: Message[], lastMessage: string) => {
     const sessions: ChatSession[] = JSON.parse(
       localStorage.getItem("chatSessions") || "[]"
@@ -79,6 +105,10 @@ const ChatPage = () => {
     );
   };
 
+  /**
+   * Handles sending user messages to the AI diagnosis API
+   * Processes user input, shows loading state, and handles API response
+   */
   const handleSend = async () => {
     if (!input.trim() || loading) return;
     const userMsg: Message = {
@@ -139,6 +169,11 @@ const ChatPage = () => {
     }
   };
 
+  /**
+   * Keyboard event handler for message input
+   * Sends message on Enter key press, allows Shift+Enter for new lines
+   * @param e - React keyboard event
+   */
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -146,6 +181,11 @@ const ChatPage = () => {
     }
   };
 
+  /**
+   * Handles sharing messages via native share API or clipboard fallback
+   * @param message - The message content to share
+   * @param shareUrl - Whether to include the chat URL in the shared content
+   */
   const handleShareMessage = async (message: string, shareUrl = false) => {
     const content = shareUrl
       ? `${message}\n\n${window.location.href}`
