@@ -61,7 +61,6 @@ const ChatHistory = ({
   onCreateNew, // Callback to create a new chat session
   mobileView, // Flag indicating if component is in mobile view
   setIsOpenHamburger, // Function to control hamburger menu state
-  setShowNewChat, // Function to control new chat visibility
 }: {
   onSelectSession: (session: ChatSession) => void;
   onCreateNew: () => void;
@@ -102,6 +101,7 @@ const ChatHistory = ({
    * Handles mobile view, chat history, and user details
    */
   useEffect(() => {
+    if (!user?.id) return; //Should not fetch user history until userId is retrieved
     mobileView ? setIsOpen(true) : setIsOpen(false); // Auto-open sidebar in mobile view
 
     /**
@@ -134,28 +134,10 @@ const ChatHistory = ({
         setSessions(backendSessions);
       } catch (error) {
         console.error("Failed to fetch chat history:", error);
-        // toast.error("Failed to load chat history");
+        toast.error("Failed to load chat history");
       }
     };
 
-    /**
-     * Fetches current user details from the backend
-     * Updates auth context with user information
-     */
-    const fetchUserDetails = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const userDetails = await axios.get(API_ROUTES.getCurrentUser, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setUser(userDetails.data);
-      } catch (error) {
-        console.error("Failed to fetch user details:", error);
-      }
-    };
-
-    fetchUserDetails();
     fetchChatHistory();
   }, [user?.id]); // Dependency: re-fetch when user ID changes
 
@@ -257,7 +239,6 @@ const ChatHistory = ({
                     onCreateNew();
                     setIsOpenHamburger(false);
                     setIsOpen(false);
-                    setShowNewChat(false);
                   }}
                 >
                   <img src={logo} alt="HealthMate" className="size-9" />
@@ -280,7 +261,6 @@ const ChatHistory = ({
                     onCreateNew();
                     setIsOpenHamburger(false);
                     setIsOpen(false);
-                    setShowNewChat(false);
                   }}
                   className="flex items-center gap-2 font-semibold text-lg px-2 py-1 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
@@ -311,7 +291,7 @@ const ChatHistory = ({
                 <SheetPrimitive.Close asChild>
                   <button
                     onClick={handleNewChat}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition cursor-pointer"
                   >
                     <Plus size={16} />
                     New Chat
@@ -350,7 +330,6 @@ const ChatHistory = ({
                             onSelectSession(session);
                             setIsOpen(false);
                             setIsOpenHamburger(false);
-                            setShowNewChat(false);
                           }}
                         >
                           <div className="flex justify-between items-center">
@@ -395,10 +374,10 @@ const ChatHistory = ({
                     </Avatar>
                     <div className="flex flex-col flex-1 text-left overflow-hidden">
                       <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                        {user?.name || "Chirag"}
+                        {user?.name || "N/A"}
                       </span>
                       <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {user?.email || "chiragvaru03@gmail.com"}
+                        {user?.email || "not@loggedin.com"}
                       </span>
                     </div>
                     {isOpenDialog ? (

@@ -234,10 +234,15 @@ const ChatPage = () => {
                         ...msg,
                         id: Date.now() + Math.random(),
                         role: msg.role as "user" | "bot",
+                        isHTML: msg.role === "bot",
                       }))
                     );
+                    console.log(session);
                     setCurrentSessionId(session.id);
-                    setShowNewChat(false);
+                    const hasDiagnosis = session.messages.some(
+                      (msg) => msg.role === "bot"
+                    );
+                    setShowNewChat(hasDiagnosis);
                   }}
                   onCreateNew={() => {
                     setMessages([]);
@@ -280,10 +285,14 @@ const ChatPage = () => {
                         ...msg,
                         id: Date.now() + Math.random(),
                         role: msg.role as "user" | "bot",
+                        isHTML: msg.role === "bot",
                       }))
                     );
                     setCurrentSessionId(session.id);
-                    setShowNewChat(false);
+                    const hasDiagnosis = session.messages.some(
+                      (msg) => msg.role === "bot"
+                    );
+                    setShowNewChat(hasDiagnosis);
                   }}
                   onCreateNew={() => {
                     setMessages([]);
