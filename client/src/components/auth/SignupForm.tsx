@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
+import { API_ROUTES } from "@/../utils/apiConfig";
 
 const SignupForm = () => {
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,7 @@ const SignupForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:8080/api/auth/register", form);
+      await axios.post(API_ROUTES.register, form);
 
       toast.success("OTP sent!", {
         description: "Please check your email and enter the OTP.",
@@ -44,7 +45,7 @@ const SignupForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:8080/api/auth/verify-otp", {
+      await axios.post(API_ROUTES.verifyOtp, {
         email: form.email,
         otp,
       });
