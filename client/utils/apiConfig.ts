@@ -1,0 +1,1 @@
+const BASE_URL = window._env_?.BACKEND_URL || "http://localhost:8080/api";
