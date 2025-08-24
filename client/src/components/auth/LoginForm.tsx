@@ -8,6 +8,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import {API_ROUTES} from "@/../utils/apiConfig"
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const LoginForm = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/auth/login",
+        API_ROUTES.login,
         {
           email: form.email,
           password: form.password,

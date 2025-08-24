@@ -18,12 +18,20 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import axios from "axios";
-import * as SheetPrimitive from "@radix-ui/react-dialog"
+import * as SheetPrimitive from "@radix-ui/react-dialog";
+import { API_ROUTES } from "@/../utils/apiConfig";
 
 /**
  * Interface defining the structure of a chat session
@@ -31,14 +39,15 @@ import * as SheetPrimitive from "@radix-ui/react-dialog"
  */
 
 interface ChatSession {
-  id: string;                    // Unique identifier for the chat session
-  title: string;                 // Title/description of the chat (truncated symptoms)
-  lastMessage: string;           // Last message in the conversation (truncated diagnosis)
-  timestamp: number;             // Timestamp when the session was created
-  messages: Array<{              // Array of messages in the conversation
-    text: string;                // Message content
-    role: "user" | "bot";        // Sender of the message
-    isHTML?: boolean;            // Flag indicating if message contains HTML content
+  id: string; // Unique identifier for the chat session
+  title: string; // Title/description of the chat (truncated symptoms)
+  lastMessage: string; // Last message in the conversation (truncated diagnosis)
+  timestamp: number; // Timestamp when the session was created
+  messages: Array<{
+    // Array of messages in the conversation
+    text: string; // Message content
+    role: "user" | "bot"; // Sender of the message
+    isHTML?: boolean; // Flag indicating if message contains HTML content
   }>;
 }
 
@@ -48,11 +57,11 @@ interface ChatSession {
  * Handles session selection, creation, deletion, and user account management
  */
 const ChatHistory = ({
-  onSelectSession,    // Callback when a chat session is selected
-  onCreateNew,        // Callback to create a new chat session
-  mobileView,         // Flag indicating if component is in mobile view
+  onSelectSession, // Callback when a chat session is selected
+  onCreateNew, // Callback to create a new chat session
+  mobileView, // Flag indicating if component is in mobile view
   setIsOpenHamburger, // Function to control hamburger menu state
-  setShowNewChat      // Function to control new chat visibility
+  setShowNewChat, // Function to control new chat visibility
 }: {
   onSelectSession: (session: ChatSession) => void;
   onCreateNew: () => void;
@@ -65,7 +74,9 @@ const ChatHistory = ({
   const [sessions, setSessions] = useState<ChatSession[]>([]); // Array of chat sessions
   const [searchTerm, setSearchTerm] = useState(""); // Search term for filtering sessions
   const [isOpenDialog, setIsOpenDialog] = useState(false); // State for dropdown menu visibility
-  const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(null); // Session marked for deletion
+  const [sessionToDelete, setSessionToDelete] = useState<ChatSession | null>(
+    null
+  ); // Session marked for deletion
   const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false); // State for account deletion dialog
 
   /**
@@ -78,8 +89,10 @@ const ChatHistory = ({
     return (
       session.title.toLowerCase().includes(searchLower) || // Search in title
       session.lastMessage.toLowerCase().includes(searchLower) || // Search in last message
-      session.messages.some((msg) => // Search in all messages
-        msg.text.toLowerCase().includes(searchLower)
+      session.messages.some(
+        (
+          msg // Search in all messages
+        ) => msg.text.toLowerCase().includes(searchLower)
       )
     );
   });
@@ -98,25 +111,29 @@ const ChatHistory = ({
     const fetchChatHistory = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8080/api/diagnosis/history", {
+        const response = await axios.get(API_ROUTES.getDiagnosisHistory, {
           params: { userId: user?.id },
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         // Transform backend data into ChatSession format
         const backendSessions = response.data.map((report: any) => ({
           id: report.reportId,
-          title: report.symptoms?.substring(0, 50) + (report.symptoms?.length > 50 ? "..." : ""), // Truncate symptoms for title
-          lastMessage: report.diagnosis?.substring(0, 50) + (report.diagnosis?.length > 50 ? "..." : ""), // Truncate diagnosis for preview
+          title:
+            report.symptoms?.substring(0, 50) +
+            (report.symptoms?.length > 50 ? "..." : ""), // Truncate symptoms for title
+          lastMessage:
+            report.diagnosis?.substring(0, 50) +
+            (report.diagnosis?.length > 50 ? "..." : ""), // Truncate diagnosis for preview
           timestamp: new Date(report.createdAt).getTime(), // Convert to timestamp
           messages: [
             { text: `${report.symptoms}`, role: "user" as const }, // User message with symptoms
-            { text: report.diagnosis, role: "bot" as const } // Bot message with diagnosis
-          ]
+            { text: report.diagnosis, role: "bot" as const }, // Bot message with diagnosis
+          ],
         }));
         setSessions(backendSessions);
       } catch (error) {
-        console.error('Failed to fetch chat history:', error);
+        console.error("Failed to fetch chat history:", error);
         // toast.error("Failed to load chat history");
       }
     };
@@ -128,16 +145,16 @@ const ChatHistory = ({
     const fetchUserDetails = async () => {
       try {
         const token = localStorage.getItem("token");
-        const userDetails = await axios.get("http://localhost:8080/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` }
+        const userDetails = await axios.get(API_ROUTES.getCurrentUser, {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         setUser(userDetails.data);
       } catch (error) {
-        console.error('Failed to fetch user details:', error);
+        console.error("Failed to fetch user details:", error);
       }
     };
-    
+
     fetchUserDetails();
     fetchChatHistory();
   }, [user?.id]); // Dependency: re-fetch when user ID changes
@@ -149,18 +166,18 @@ const ChatHistory = ({
   const handleDeleteAccount = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete("http://localhost:8080/api/auth", {
-        headers: { Authorization: `Bearer ${token}` }
+      await axios.delete(API_ROUTES.deleteAccount, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       localStorage.removeItem("token"); // Clear authentication token
       localStorage.removeItem("user"); // Clear user data
       setUser(null); // Update auth context
       toast.success("Account deleted successfully");
     } catch (error) {
-      console.error('Failed to delete account:', error);
+      console.error("Failed to delete account:", error);
       toast.error("Failed to delete account. Please try again.");
     }
-  }
+  };
 
   /**
    * Handles creating a new chat session
@@ -190,16 +207,18 @@ const ChatHistory = ({
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:8080/api/diagnosis/${sessionToDelete.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      await axios.delete(API_ROUTES.deleteDiagnosisById(sessionToDelete.id), {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      const updatedSessions = sessions.filter(s => s.id !== sessionToDelete.id);
+      const updatedSessions = sessions.filter(
+        (s) => s.id !== sessionToDelete.id
+      );
       setSessions(updatedSessions);
       toast.success("Chat deleted");
       setSessionToDelete(null);
     } catch (error) {
-      console.error('Failed to delete chat:', error);
+      console.error("Failed to delete chat:", error);
       toast.error("Failed to delete chat");
     }
   };
@@ -210,8 +229,8 @@ const ChatHistory = ({
       <button
         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition cursor-pointer"
         onClick={() => {
-          setIsOpenHamburger(false)
-          setIsOpen(true)
+          setIsOpenHamburger(false);
+          setIsOpen(true);
         }}
       >
         <Menu className="h-6 w-6" />
@@ -223,39 +242,38 @@ const ChatHistory = ({
           <div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
             onClick={() => {
-              setIsOpen(false)
-              setIsOpenHamburger(false)
+              setIsOpen(false);
+              setIsOpenHamburger(false);
             }}
           />
 
-          <div
-            className="fixed inset-y-0 left-0 w-72 sm:w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-2xl z-50 flex flex-col animate-slide-in"
-          >
+          <div className="fixed inset-y-0 left-0 w-72 sm:w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-2xl z-50 flex flex-col animate-slide-in">
             {/* Header */}
-            {!mobileView ? <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
-              <button
-                className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors"
-                onClick={() => {
-                  onCreateNew();
-                  setIsOpenHamburger(false);
-                  setIsOpen(false);
-                  setShowNewChat(false);
-                }}
-              >
-                <img src={logo} alt="HealthMate" className="size-9" />
-                <span>HealthMate</span>
-              </button>
-              <button
-                onClick={() => {
-                  setIsOpenHamburger(false)
-                  setIsOpen(false)
-                }}
-                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div> :
-
+            {!mobileView ? (
+              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
+                <button
+                  className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors"
+                  onClick={() => {
+                    onCreateNew();
+                    setIsOpenHamburger(false);
+                    setIsOpen(false);
+                    setShowNewChat(false);
+                  }}
+                >
+                  <img src={logo} alt="HealthMate" className="size-9" />
+                  <span>HealthMate</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setIsOpenHamburger(false);
+                    setIsOpen(false);
+                  }}
+                  className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            ) : (
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
                 <button
                   onClick={() => {
@@ -266,7 +284,11 @@ const ChatHistory = ({
                   }}
                   className="flex items-center gap-2 font-semibold text-lg px-2 py-1 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
-                  <img src={logo} alt="HealthMate" className="h-6 w-6 rounded-sm shadow-sm" />
+                  <img
+                    src={logo}
+                    alt="HealthMate"
+                    className="h-6 w-6 rounded-sm shadow-sm"
+                  />
                   <span className="tracking-tight">HealthMate</span>
                 </button>
                 <SheetPrimitive.Dialog>
@@ -280,7 +302,8 @@ const ChatHistory = ({
                     </button>
                   </SheetPrimitive.Close>
                 </SheetPrimitive.Dialog>
-              </div>}
+              </div>
+            )}
 
             {/* New Chat */}
             <div className="p-3 space-y-3 border-b border-gray-100 dark:border-gray-800">
@@ -424,7 +447,8 @@ const ChatHistory = ({
             </DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-            Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
+            Are you sure you want to permanently delete your account? This
+            action cannot be undone and all your data will be lost.
           </DialogDescription>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
@@ -452,7 +476,10 @@ const ChatHistory = ({
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!sessionToDelete} onOpenChange={() => setSessionToDelete(null)}>
+      <Dialog
+        open={!!sessionToDelete}
+        onOpenChange={() => setSessionToDelete(null)}
+      >
         <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
@@ -460,7 +487,8 @@ const ChatHistory = ({
             </DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-            Are you sure you want to delete "{sessionToDelete?.title}"? This cannot be undone.
+            Are you sure you want to delete "{sessionToDelete?.title}"? This
+            cannot be undone.
           </DialogDescription>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
