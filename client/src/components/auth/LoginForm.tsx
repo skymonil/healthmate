@@ -8,7 +8,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import {API_ROUTES} from "@/../utils/apiConfig"
+import { API_ROUTES } from "@/../utils/apiConfig";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -29,25 +29,21 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        API_ROUTES.login,
-        {
-          email: form.email,
-          password: form.password,
-        }
-      );
+      const response = await axios.post(API_ROUTES.login, {
+        email: form.email,
+        password: form.password,
+      });
 
-      const { token, userId } = response.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("userId", userId);
+      const { token } = response.data;
 
-      login(token, userId);
+      const userResponse = await axios.get(API_ROUTES.getCurrentUser, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      // const userDetails = await axios.get("http://localhost:8080/api/auth/me", {
-      //   headers: { Authorization: `Bearer ${token}` }
-      // });
+      const user = userResponse.data; 
 
-      // setUser(userDetails.data);
+      login(token, user);
+
 
       toast.success("Login successful!", {
         description: "Welcome back!",
