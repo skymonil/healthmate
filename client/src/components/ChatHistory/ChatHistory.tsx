@@ -234,7 +234,7 @@ const ChatHistory = ({
             {!mobileView ? (
               <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
                 <button
-                  className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors"
+                  className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors cursor-pointer"
                   onClick={() => {
                     onCreateNew();
                     setIsOpenHamburger(false);
