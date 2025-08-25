@@ -111,7 +111,7 @@ module "ecs" {
   assign_public_ip                      = var.assign_public_ip
   container_name                        = var.container_name
   public_subnet_ids                     = module.vpc.public_subnet_ids
-  service_launch_type                   = var.service_launch_type
+ 
   memory                                = var.memory
   log_group                             = var.log_group
   container_cpu                         = var.container_cpu
@@ -126,6 +126,6 @@ module "ecs" {
   SPRING_MAIL_USERNAME                  = var.SPRING_MAIL_USERNAME
   GEMINI_API_KEY                        = var.GEMINI_API_KEY
   SPRING_MAIL_SMTP_AUTH                 = var.SPRING_MAIL_SMTP_AUTH
-  SRPING_MAIL_SMTP_AUTH_STARTTLS_ENABLE = var.SRPING_MAIL_SMTP_AUTH_STARTTLS_ENABLE
+  SPRING_MAIL_SMTP_STARTTLS_ENABLE = var.SPRING_MAIL_SMTP_STARTTLS_ENABLE
 }
 
