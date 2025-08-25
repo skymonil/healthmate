@@ -170,6 +170,7 @@ const ChatHistory = ({
     setSessionToDelete(null); // Clear any pending deletion
     onCreateNew(); // Trigger parent callback
     setIsOpen(false); // Close sidebar
+    setIsOpenHamburger(false); // Close hamburger menu if open
   };
 
   /**
@@ -274,7 +275,10 @@ const ChatHistory = ({
                 <SheetPrimitive.Dialog>
                   <SheetPrimitive.Close asChild>
                     <button
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => {
+                        setIsOpenHamburger(false);
+                        setIsOpen(false);
+                      }}
                       className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                       <X className="h-5 w-5" />
@@ -290,7 +294,12 @@ const ChatHistory = ({
               <SheetPrimitive.Dialog>
                 <SheetPrimitive.Close asChild>
                   <button
-                    onClick={handleNewChat}
+                    // onClick={handleNewChat}
+                    onClick={() => {
+                      setIsOpenHamburger(false);
+                      setIsOpen(false);
+                      handleNewChat();
+                    }}
                     className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition cursor-pointer"
                   >
                     <Plus size={16} />
