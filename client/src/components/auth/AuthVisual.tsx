@@ -5,7 +5,7 @@ const AuthVisual = () => {
         <img
           src="/auth-illustration.png"
           alt="AI Diagnosis Visual"
-          className="h-full w-full object-cover"
+          className="h-full w-full object-center"
         />
       </div>
     </div>
