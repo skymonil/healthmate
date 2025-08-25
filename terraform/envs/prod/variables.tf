@@ -100,10 +100,7 @@ variable "container_name" {
   type        = string
 }
 
-variable "service_launch_type" {
-  description = "The launch type for the ECS service (e.g., FARGATE or EC2)."
-  type        = string
-}
+
 
 variable "memory" {
   description = "The memory (in MiB) for the ECS task."

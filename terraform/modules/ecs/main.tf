@@ -203,7 +203,7 @@ resource "aws_ecs_task_definition" "aw_ecs_task" {
         }
 
       ]
-     environment = [
+      environment = [
         {
           name  = "SPRING_APPLICATION_NAME"
           value = var.SPRING_APPLICATION_NAME
@@ -263,9 +263,16 @@ resource "aws_ecs_service" "example" {
   name            = var.ecs_service_name
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.aw_ecs_task.id
-  launch_type     = var.service_launch_type
-  desired_count   = 1 # We want 1 instance of the task running
+   desired_count   = 1
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    weight            = 2
+  }
 
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE"
+    weight            = 1
+  }
   network_configuration {
     subnets          = var.public_subnet_ids
     security_groups  = var.ecs_security_group_ids

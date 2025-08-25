@@ -67,10 +67,6 @@ variable "ecs_service_name" {
   type        = string
 }
 
-variable "service_launch_type" {
-  description = "Launch type of the ecs service"
-  type        = string
-}
 
 variable "public_subnet_ids" {
   description = "A list of public subnet IDs to place the ECS tasks in."

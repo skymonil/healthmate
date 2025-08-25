@@ -111,7 +111,7 @@ module "ecs" {
   assign_public_ip                      = var.assign_public_ip
   container_name                        = var.container_name
   public_subnet_ids                     = module.vpc.public_subnet_ids
-  service_launch_type                   = var.service_launch_type
+ 
   memory                                = var.memory
   log_group                             = var.log_group
   container_cpu                         = var.container_cpu
