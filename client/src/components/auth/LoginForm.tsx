@@ -72,7 +72,7 @@ const LoginForm = () => {
           id="email"
           name="email"
           type="email"
-          placeholder="you@example.com"
+          placeholder="demowashere@example.com"
           required
           value={form.email}
           onChange={handleChange}
@@ -99,7 +99,7 @@ const LoginForm = () => {
       <Button
         type="submit"
         className={cn(
-          "w-full cursor-pointer",
+          "w-full cursor-pointer text-white",
           loading && "opacity-75 cursor-not-allowed"
         )}
         disabled={loading}

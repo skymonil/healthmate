@@ -34,7 +34,7 @@ const AuthFormSwitcher = () => {
             className={cn(
               "rounded-full px-4 py-2 text-sm cursor-pointer transition-all",
               activeTab === tab.value
-                ? "bg-emerald-500 dark:bg-emerald-400 text-white dark:text-slate-900 shadow-md"
+                ? "bg-emerald-500 dark:bg-emerald-400 text-white shadow-md"
                 : "text-slate-900 dark:text-gray-100 hover:bg-slate-200 dark:hover:bg-slate-700"
             )}
             onClick={() => setActiveTab(tab.value)}

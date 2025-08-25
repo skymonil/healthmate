@@ -49,7 +49,7 @@ const StarBorder = <T extends React.ElementType = "button">({
       {/* Content wrapper - theme friendly */}
       <div
         className="relative z-10 rounded-xl border border-gray-200 dark:border-gray-700 
-                   bg-white/80 dark:bg-gray-900/80 
+                   bg-white/80 dark:bg-neutral-900/80 
                    backdrop-blur-sm"
       >
         {children}

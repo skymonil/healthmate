@@ -210,7 +210,7 @@ const ChatHistory = ({
     <div className="relative">
       {/* Mobile Menu Button */}
       <button
-        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition cursor-pointer"
+        className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-gray-600 dark:text-gray-300 transition cursor-pointer"
         onClick={() => {
           setIsOpenHamburger(false);
           setIsOpen(true);
@@ -230,12 +230,12 @@ const ChatHistory = ({
             }}
           />
 
-          <div className="fixed inset-y-0 left-0 w-72 sm:w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-2xl z-50 flex flex-col animate-slide-in">
+          <div className="fixed inset-y-0 left-0 w-72 sm:w-80 bg-white dark:bg-neutral-900 border-r border-emerald-100 dark:border-emerald-800 shadow-2xl z-50 flex flex-col animate-slide-in">
             {/* Header */}
             {!mobileView ? (
               <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
                 <button
-                  className="flex items-center gap-2 font-semibold text-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors cursor-pointer"
+                  className="flex items-center gap-2 font-semibold text-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 px-2 py-1 rounded-md transition-colors cursor-pointer"
                   onClick={() => {
                     onCreateNew();
                     setIsOpenHamburger(false);
@@ -250,25 +250,25 @@ const ChatHistory = ({
                     setIsOpenHamburger(false);
                     setIsOpen(false);
                   }}
-                  className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer"
+                  className="p-1 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition cursor-pointer"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-inherit z-10">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800  sticky top-0 bg-inherit z-10">
                 <button
                   onClick={() => {
                     onCreateNew();
                     setIsOpenHamburger(false);
                     setIsOpen(false);
                   }}
-                  className="flex items-center gap-2 font-semibold text-lg px-2 py-1 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="flex items-center gap-2 font-semibold text-lg px-2 py-1 rounded-md transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
                 >
                   <img
                     src={logo}
                     alt="HealthMate"
-                    className="h-6 w-6 rounded-sm shadow-sm"
+                    className="size-8 rounded-sm shadow-sm"
                   />
                   <span className="tracking-tight">HealthMate</span>
                 </button>
@@ -279,7 +279,7 @@ const ChatHistory = ({
                         setIsOpenHamburger(false);
                         setIsOpen(false);
                       }}
-                      className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
                     >
                       <X className="h-5 w-5" />
                       <span className="sr-only">Close</span>
@@ -300,7 +300,7 @@ const ChatHistory = ({
                       setIsOpen(false);
                       handleNewChat();
                     }}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-emerald-500 dark:bg-emerald-600 text-white hover:bg-emerald-400 transition cursor-pointer"
                   >
                     <Plus size={16} />
                     New Chat
@@ -314,7 +314,7 @@ const ChatHistory = ({
                 <input
                   type="text"
                   placeholder="Search chats..."
-                  className="w-full pl-10 pr-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -334,7 +334,7 @@ const ChatHistory = ({
                       <SheetPrimitive.Close asChild key={session.id}>
                         <li
                           key={session.id}
-                          className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition rounded-md"
+                          className="px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition rounded-md"
                           onClick={() => {
                             onSelectSession(session);
                             setIsOpen(false);
@@ -372,11 +372,11 @@ const ChatHistory = ({
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-gray-200 dark:border-gray-800 sticky bg-white dark:bg-gray-900 bottom-2">
+            <div className="p-4 border-t border-emerald-100 dark:border-emerald-800 sticky bg-white dark:bg-neutral-900 bottom-2">
               <DropdownMenu onOpenChange={(open) => setIsOpenDialog(open)}>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-3 w-full rounded-lg p-2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:focus:ring-blue-500/50">
-                    <Avatar className="h-10 w-10 border border-gray-200 dark:border-gray-700 bg-blue-500 dark:bg-blue-600">
+                  <button className="flex items-center gap-3 w-full rounded-lg p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 hover:focus:ring-emerald-500/50">
+                    <Avatar className="h-10 w-10 border border-gray-200 dark:border-gray-700 bg-emerald-500 dark:bg-emerald-600">
                       <AvatarFallback className="text-white font-semibold">
                         {user?.name?.trim()?.charAt(0)?.toUpperCase() || "C"}
                       </AvatarFallback>
@@ -399,23 +399,29 @@ const ChatHistory = ({
 
                 <DropdownMenuContent
                   align="start"
-                  className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg overflow-hidden"
+                  className="w-56 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg overflow-hidden"
                 >
                   <DropdownMenuLabel className="px-3 py-2 text-xs tracking-wide text-gray-500 dark:text-gray-400">
                     Account
                     {/* Free Plan */}
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+                  <DropdownMenuSeparator className="bg-neutral-200 dark:bg-neutral-700" />
 
                   <DropdownMenuItem
-                    onClick={() => logout()}
-                    className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => {
+                      logout();
+                      toast.success("You have been logged out", {
+                        description: "See you soon 👋",
+                      });
+                    }}
+                    className="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/40
+"
                   >
                     Log Out
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setIsDeleteAccountOpen(true)}
-                    className="px-3 py-2 text-sm cursor-pointer text-red-500 hover:bg-red-50 dark:hover:bg-gray-700 dark:text-red-400"
+                    className="px-3 py-2 text-sm cursor-pointer text-red-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/40 dark:text-red-400"
                   >
                     Delete Account
                   </DropdownMenuItem>
@@ -428,7 +434,7 @@ const ChatHistory = ({
 
       {/* Account delete confirmation dialog */}
       <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
-        <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+        <DialogContent className="bg-white dark:bg-neutral-900 border-gray-200 dark:border-gray-700">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Account
@@ -441,7 +447,7 @@ const ChatHistory = ({
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 dark:hover:bg-gray-700 cursor-pointer"
+              className="text-gray-700 dark:text-gray-200 dark:bg-neutral-800 border-gray-300 dark:border-gray-600 mr-2 dark:hover:bg-neutral-700 cursor-pointer"
               onClick={() => setIsDeleteAccountOpen(false)}
             >
               Cancel
@@ -468,7 +474,7 @@ const ChatHistory = ({
         open={!!sessionToDelete}
         onOpenChange={() => setSessionToDelete(null)}
       >
-        <DialogContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+        <DialogContent className="bg-white dark:bg-neutral-900 border-gray-200 dark:border-gray-700">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100 text-lg">
               Delete Chat
@@ -481,7 +487,7 @@ const ChatHistory = ({
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
-              className="text-gray-700 dark:text-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-gray-700 cursor-pointer"
+              className="text-gray-700 dark:text-gray-200 dark:bg-neutral-800 border-gray-300 dark:border-gray-600 mr-2 hover:bg-neutral-700 cursor-pointer"
               onClick={() => setSessionToDelete(null)}
             >
               Cancel

@@ -187,14 +187,31 @@ const ChatPage = () => {
   };
 
   /**
-   * Handles sharing messages via native share API or clipboard fallback
-   * @param message - The message content to share
+   * Handles sharing user symptoms and AI diagnosis
+   * via native share API or clipboard fallback
+   * @param symptoms - The user inputted symptoms
+   * @param diagnosis - The AI generated diagnosis
    * @param shareUrl - Whether to include the chat URL in the shared content
    */
-  const handleShareMessage = async (message: string, shareUrl = false) => {
-    const content = shareUrl
-      ? `${message}\n\n${window.location.href}`
-      : message;
+
+  const stripHtml = (html: string) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return div.textContent || div.innerText || "";
+  };
+
+  const handleShareMessage = async (
+    symptoms: string,
+    diagnosis: string,
+    shareUrl = false
+  ) => {
+    const plainSymptoms = stripHtml(symptoms);
+    const plainDiagnosis = stripHtml(diagnosis);
+
+    const content = `📝 Symptoms:\n${plainSymptoms}\n\n🤖 AI Diagnosis:\n${plainDiagnosis}${
+      shareUrl ? `\n\n🔗 ${window.location.href}` : ""
+    }`;
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -209,15 +226,15 @@ const ChatPage = () => {
       navigator.clipboard.writeText(content);
       toast.success(
         shareUrl
-          ? "Chat link copied to clipboard!"
-          : "Message copied to clipboard!"
+          ? "Chat link copied with details!"
+          : "Symptoms & diagnosis copied!"
       );
     }
   };
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <div className="h-screen w-full bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+      <div className="h-screen w-full bg-neutral-100 dark:bg-neutral-950 text-gray-900 dark:text-gray-100">
         <Sidebar
           side="left"
           variant="sidebar"
@@ -237,7 +254,6 @@ const ChatPage = () => {
                         isHTML: msg.role === "bot",
                       }))
                     );
-                    console.log(session);
                     setCurrentSessionId(session.id);
                     const hasDiagnosis = session.messages.some(
                       (msg) => msg.role === "bot"
@@ -256,7 +272,7 @@ const ChatPage = () => {
               </div>
 
               <div className="pb-4">
-                <Avatar className="h-8 w-8 border border-gray-200 dark:border-gray-700 bg-blue-500 dark:bg-blue-600">
+                <Avatar className="h-8 w-8 border border-emerald-200 dark:border-emerald-800 bg-emerald-500 dark:bg-emerald-600">
                   <AvatarFallback className="text-white font-semibold">
                     {user?.name?.trim()?.charAt(0)?.toUpperCase() || "C"}
                   </AvatarFallback>
@@ -271,7 +287,7 @@ const ChatPage = () => {
             <Sheet open={isOpenHamburger} onOpenChange={setIsOpenHamburger}>
               <SheetTrigger asChild>
                 <button
-                  className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md cursor-pointer"
+                  className="p-2 bg-white dark:bg-neutral-800 rounded-full shadow-md cursor-pointer"
                   onClick={() => setIsOpenHamburger(true)}
                 >
                   <Menu className="h-5 w-5" />
@@ -307,7 +323,10 @@ const ChatPage = () => {
             </Sheet>
           </div>
 
-          <header className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 w-full pl-14">
+          <header
+            className="px-4 py-3 bg-white dark:bg-neutral-900
+ border-b border-emerald-200 dark:border-emerald-800 flex items-center gap-2 w-full pl-14"
+          >
             <button
               className={`flex items-center gap-2 flex-1 ${
                 messages.length > 0 ? "cursor-pointer" : "cursor-default"
@@ -321,16 +340,16 @@ const ChatPage = () => {
                 }
               }}
             >
-              <img src="/logo.png" alt="HealthMate Logo" className="h-8 w-8" />
+              <img src="/logo.png" alt="HealthMate Logo" className="size-9" />
               <h1 className="text-lg font-semibold truncate">HealthMate</h1>
             </button>
             <ThemeToggleButton start="top-right" />
           </header>
 
-          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 bg-gray-100 dark:bg-gray-950 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 bg-neutral-100 dark:bg-neutral-950 custom-scrollbar">
             {messages.length > 0 ? (
               <div className="max-w-3xl mx-auto w-full px-2 space-y-4">
-                {messages.map((msg) => (
+                {messages.map((msg, index) => (
                   <div
                     key={msg.id}
                     className={`flex ${
@@ -342,8 +361,8 @@ const ChatPage = () => {
                     <div
                       className={`w-fit max-w-[85%] xs:max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base shadow-md ${
                         msg.role === "user"
-                          ? "bg-blue-600 text-white rounded-br-sm"
-                          : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
+                          ? "bg-emerald-500 dark:bg-emerald-600 text-white rounded-br-sm"
+                          : " dark:bg-emerald-950 dark:text-emerald-100 bg-emerald-50 text-emerald-900 rounded-bl-sm"
                       }`}
                       dangerouslySetInnerHTML={
                         msg.isHTML
@@ -351,10 +370,17 @@ const ChatPage = () => {
                           : { __html: msg.text }
                       }
                     />
-                    {msg.role === "bot" && (
+
+                    {msg.role === "bot" && msg.isHTML && (
                       <button
-                        onClick={() => handleShareMessage(msg.text)}
-                        className="flex items-center gap-1 text-2xs sm:text-xs text-blue-500 dark:text-blue-400 mt-1 hover:underline cursor-pointer"
+                        onClick={() => {
+                          const prevMsg = messages[index - 1];
+                          const symptoms =
+                            prevMsg?.role === "user" ? prevMsg.text : "N/A";
+                          const diagnosis = msg.text || "N/A";
+                          handleShareMessage(symptoms, diagnosis);
+                        }}
+                        className="flex items-center gap-1 text-2xs sm:text-md text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 mt-1 hover:underline cursor-pointer"
                       >
                         <Share2 size={12} /> Share
                       </button>
@@ -371,7 +397,7 @@ const ChatPage = () => {
                       className="text-4xl font-bold bg-clip-text text-transparent"
                       style={{
                         backgroundImage:
-                          "linear-gradient(120deg, #2563eb, #60a5fa, rgba(180, 180, 180,0.8) 50%, #60a5fa, #2563eb)",
+                          "linear-gradient(120deg, #059669, #34d399, rgba(180, 180, 180,0.8) 50%, #34d399, #059669)",
                         backgroundSize: "200% 100%",
                         animation: "shine 5s linear infinite",
                       }}
@@ -387,10 +413,10 @@ const ChatPage = () => {
             )}
           </div>
 
-          <div className="sticky bottom-0 flex justify-center px-3 sm:px-4 pb-4 sm:pb-4 bg-gray-100 dark:bg-gray-950 mb-1.5">
+          <div className="sticky bottom-0 flex justify-center px-3 sm:px-4 pb-4 sm:pb-4 bg-neutral-100 dark:bg-neutral-950 mb-1.5">
             <div className="w-full max-w-3xl">
               {showNewChat ? (
-                <div className="flex items-center justify-between px-4 py-3 bg-gray-200 dark:bg-gray-800 rounded-lg">
+                <div className="flex items-center justify-between px-4 py-3 bg-neutral-200 dark:bg-neutral-800 rounded-lg">
                   <p className="text-md text-gray-700 dark:text-gray-300">
                     Only one diagnosis is allowed per chat. Start a new chat to
                     diagnose new symptoms.
@@ -401,7 +427,7 @@ const ChatPage = () => {
                       setShowNewChat(false);
                       setCurrentSessionId(null);
                     }}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-md text-sm cursor-pointer"
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-md text-sm cursor-pointer"
                   >
                     New Chat
                   </button>
@@ -414,17 +440,9 @@ const ChatPage = () => {
                   speed="5s"
                   thickness={2}
                 >
-                  <div
-                    className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-xl 
-    bg-white/80 dark:bg-gray-800/80 
-    backdrop-blur-sm 
-    border border-gray-200 dark:border-gray-700 w-full"
-                  >
+                  <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 backdrop-blur-sm w-full">
                     <textarea
-                      className="flex-1 resize-none bg-transparent px-2 sm:px-3 py-1 sm:py-2 
-      text-sm sm:text-base text-gray-900 dark:text-white 
-      placeholder-gray-500 dark:placeholder-gray-400
-      focus:outline-none focus:ring-0"
+                      className="flex-1 resize-none bg-transparent px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base text-gray-900 dark:text-white placeholder-emerald-500 dark:placeholder-emerald-400 focus:outline-none focus:ring-0"
                       rows={1}
                       placeholder={
                         loading ? "Analyzing..." : "Describe your symptoms..."
@@ -436,12 +454,7 @@ const ChatPage = () => {
                     />
                     <button
                       onClick={handleSend}
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 
-      hover:from-blue-600 hover:to-blue-700 
-      text-white font-semibold px-3 sm:px-4 py-1 sm:py-2 
-      rounded-md transition-all duration-200 
-      disabled:opacity-50 disabled:cursor-not-allowed 
-      w-16 sm:w-20 flex justify-center items-center cursor-pointer"
+                      className="bg-gradient-to-r from-emerald-500 to-emerald-600  hover:from-emerald-600 hover:to-emerald-700  text-white font-semibold px-3 sm:px-4 py-1 sm:py-2  rounded-md transition-all duration-200  disabled:opacity-50 disabled:cursor-not-allowed w-16 sm:w-20 flex justify-center items-center cursor-pointer"
                       disabled={loading || !input.trim()}
                     >
                       {loading ? "..." : <Send />}
