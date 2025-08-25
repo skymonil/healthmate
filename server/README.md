@@ -157,7 +157,7 @@ Deletes a specific diagnosis report.
 
 ---
 
-## AI Diagnosis
+## AI Integration
 
 The diagnosis logic is powered by the `GeminiService`, which internally connects to Google’s Gemini API for intelligent response generation based on natural language symptom input.
 
@@ -189,6 +189,8 @@ cd server
 
 # 2. Run the app
 ./mvnw spring-boot:run
+#or
+mvn spring-boot:run
 ```
 
 ---
