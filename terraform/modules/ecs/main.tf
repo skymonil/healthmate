@@ -234,11 +234,11 @@ resource "aws_ecs_task_definition" "aw_ecs_task" {
         },
         {
           name  = "SPRING_MAIL_SMTP_AUTH"
-          value = var.SPRING_MAIL_SMTP_AUTH
+          value = tostring(var.SPRING_MAIL_SMTP_AUTH)
         },
         {
           name  = "SPRING_MAIL_SMTP_STARTTLS_ENABLE"
-          value = var.SPRING_MAIL_SMTP_STARTTLS_ENABLE
+          value = tostring(var.SPRING_MAIL_SMTP_STARTTLS_ENABLE)
         },
         {
           name  = "GEMINI_API_KEY"

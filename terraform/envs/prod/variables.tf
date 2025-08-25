@@ -169,15 +169,15 @@ variable "GEMINI_API_KEY" {
 
 variable "SPRING_MAIL_SMTP_AUTH" {
   description = "Enable SMTP authentication for mail server"
-  type        = string
-  default     = "true"
+  type        = bool
+  default     = true
   sensitive   = true
 }
 
-variable "SRPING_MAIL_SMTP_AUTH_STARTTLS_ENABLE" {
+variable "SPRING_MAIL_SMTP_STARTTLS_ENABLE" {
   description = "Enable STARTTLS for mail server"
   type        = bool
-  default     = "true"
+  default     = true
   sensitive   = true
 }
 
