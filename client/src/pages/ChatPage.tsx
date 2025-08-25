@@ -107,6 +107,25 @@ const ChatPage = () => {
   };
 
   /**
+   * Simulates typing animation for bot messages
+   * Iterates through the full text and reveals it character by character
+   *
+   * @param fullText - The complete diagnosis text to simulate typing for
+   * @param callback - Function invoked with the current partial text at each step
+   */
+  const simulateTyping = (
+    fullText: string,
+    callback: (partial: string) => void
+  ) => {
+    let i = 0;
+    const interval = setInterval(() => {
+      callback(fullText.slice(0, i));
+      i++;
+      if (i > fullText.length) clearInterval(interval);
+    }, 1);
+  };
+
+  /**
    * Handles sending user messages to the AI diagnosis API
    * Processes user input, shows loading state, and handles API response
    */
@@ -143,15 +162,22 @@ const ChatPage = () => {
       );
 
       setMessages((prev) => {
-        const updated = [
-          ...prev.filter((m) => m.id !== loadingMsg.id),
-          {
-            id: Date.now() + 2,
-            text: data.diagnosis,
-            role: "bot" as const,
-            isHTML: true,
-          },
-        ];
+        const updated = [...prev.filter((m) => m.id !== loadingMsg.id)];
+        const botMsg: Message = {
+          id: Date.now() + 2,
+          text: "",
+          role: "bot",
+          isHTML: true,
+        };
+        updated.push(botMsg);
+
+        // Start typing simulation
+        simulateTyping(data.diagnosis, (partial) => {
+          setMessages((msgs) =>
+            msgs.map((m) => (m.id === botMsg.id ? { ...m, text: partial } : m))
+          );
+        });
+
         saveSession(updated, data.diagnosis);
         return updated;
       });
