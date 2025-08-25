@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 import StarBorder from "@/components/ui/StarBorder";
 import { useAuth } from "@/context/AuthContext";
+import { API_ROUTES } from "@/../utils/apiConfig";
 
 /**
  * Interface defining the structure of a chat message
@@ -31,10 +32,10 @@ interface Message {
  * Represents a saved conversation with metadata
  */
 type ChatSession = {
-  id: string;                                        // Unique identifier for the chat session
-  title: string;                                     // Title/description of the chat
-  lastMessage: string;                               // Last message in the conversation
-  timestamp: number;                                 // Timestamp when the session was created
+  id: string; // Unique identifier for the chat session
+  title: string; // Title/description of the chat
+  lastMessage: string; // Last message in the conversation
+  timestamp: number; // Timestamp when the session was created
   messages: Array<{ text: string; role: "user" | "bot" }>; // Array of messages in the conversation
 };
 
@@ -50,7 +51,7 @@ const ChatPage = () => {
   const [showNewChat, setShowNewChat] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [_isSharedChat, setIsSharedChat] = useState(false);
-  const [isOpenHamburger, setIsOpenHamburger] = useState(false)
+  const [isOpenHamburger, setIsOpenHamburger] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
@@ -127,15 +128,19 @@ const ChatPage = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.post('http://localhost:8080/api/diagnosis', {
-        userId: user?.id,
-        symptoms: input.trim()
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const { data } = await axios.post(
+        API_ROUTES.createDiagnosis,
+        {
+          userId: user?.id,
+          symptoms: input.trim(),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      });
+      );
 
       setMessages((prev) => {
         const updated = [
@@ -144,8 +149,8 @@ const ChatPage = () => {
             id: Date.now() + 2,
             text: data.diagnosis,
             role: "bot" as const,
-            isHTML: true
-          }
+            isHTML: true,
+          },
         ];
         saveSession(updated, data.diagnosis);
         return updated;
@@ -157,8 +162,8 @@ const ChatPage = () => {
           {
             id: Date.now() + 2,
             text: "Error analyzing symptoms. Please try again later.",
-            role: "bot" as const
-          }
+            role: "bot" as const,
+          },
         ];
         saveSession(updated, "Error analyzing symptoms");
         return updated;
@@ -228,11 +233,16 @@ const ChatPage = () => {
                       session.messages.map((msg) => ({
                         ...msg,
                         id: Date.now() + Math.random(),
-                        role: msg.role as "user" | "bot"
+                        role: msg.role as "user" | "bot",
+                        isHTML: msg.role === "bot",
                       }))
                     );
+                    console.log(session);
                     setCurrentSessionId(session.id);
-                    setShowNewChat(false);
+                    const hasDiagnosis = session.messages.some(
+                      (msg) => msg.role === "bot"
+                    );
+                    setShowNewChat(hasDiagnosis);
                   }}
                   onCreateNew={() => {
                     setMessages([]);
@@ -260,7 +270,8 @@ const ChatPage = () => {
           <div className="md:hidden absolute top-3 left-3 z-50">
             <Sheet open={isOpenHamburger} onOpenChange={setIsOpenHamburger}>
               <SheetTrigger asChild>
-                <button className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md cursor-pointer"
+                <button
+                  className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md cursor-pointer"
                   onClick={() => setIsOpenHamburger(true)}
                 >
                   <Menu className="h-5 w-5" />
@@ -273,11 +284,15 @@ const ChatPage = () => {
                       session.messages.map((msg) => ({
                         ...msg,
                         id: Date.now() + Math.random(),
-                        role: msg.role as "user" | "bot"
+                        role: msg.role as "user" | "bot",
+                        isHTML: msg.role === "bot",
                       }))
                     );
                     setCurrentSessionId(session.id);
-                    setShowNewChat(false);
+                    const hasDiagnosis = session.messages.some(
+                      (msg) => msg.role === "bot"
+                    );
+                    setShowNewChat(hasDiagnosis);
                   }}
                   onCreateNew={() => {
                     setMessages([]);
@@ -294,8 +309,9 @@ const ChatPage = () => {
 
           <header className="px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 w-full pl-14">
             <button
-              className={`flex items-center gap-2 flex-1 ${messages.length > 0 ? "cursor-pointer" : "cursor-default"
-                }`}
+              className={`flex items-center gap-2 flex-1 ${
+                messages.length > 0 ? "cursor-pointer" : "cursor-default"
+              }`}
               onClick={() => {
                 if (messages.length > 0) {
                   setMessages([]);
@@ -317,19 +333,22 @@ const ChatPage = () => {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`flex ${msg.role === "user"
-                      ? "justify-end"
-                      : "justify-start flex-col"
-                      }`}
+                    className={`flex ${
+                      msg.role === "user"
+                        ? "justify-end"
+                        : "justify-start flex-col"
+                    }`}
                   >
                     <div
-                      className={`w-fit max-w-[85%] xs:max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base shadow-md ${msg.role === "user"
-                        ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
-                        }`}
-                      dangerouslySetInnerHTML={msg.isHTML ?
-                        { __html: DOMPurify.sanitize(msg.text) } :
-                        { __html: msg.text }
+                      className={`w-fit max-w-[85%] xs:max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base shadow-md ${
+                        msg.role === "user"
+                          ? "bg-blue-600 text-white rounded-br-sm"
+                          : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
+                      }`}
+                      dangerouslySetInnerHTML={
+                        msg.isHTML
+                          ? { __html: DOMPurify.sanitize(msg.text) }
+                          : { __html: msg.text }
                       }
                     />
                     {msg.role === "bot" && (
@@ -373,7 +392,8 @@ const ChatPage = () => {
               {showNewChat ? (
                 <div className="flex items-center justify-between px-4 py-3 bg-gray-200 dark:bg-gray-800 rounded-lg">
                   <p className="text-md text-gray-700 dark:text-gray-300">
-                    Only one diagnosis is allowed per chat. Start a new chat to diagnose new symptoms.
+                    Only one diagnosis is allowed per chat. Start a new chat to
+                    diagnose new symptoms.
                   </p>
                   <button
                     onClick={() => {
