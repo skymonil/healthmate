@@ -137,7 +137,7 @@ const ChatHistory = ({
         console.error('Failed to fetch user details:', error);
       }
     };
-    
+
     fetchUserDetails();
     fetchChatHistory();
   }, [user?.id]); // Dependency: re-fetch when user ID changes

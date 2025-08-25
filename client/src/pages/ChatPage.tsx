@@ -318,14 +318,14 @@ const ChatPage = () => {
                   <div
                     key={msg.id}
                     className={`flex ${msg.role === "user"
-                        ? "justify-end"
-                        : "justify-start flex-col"
+                      ? "justify-end"
+                      : "justify-start flex-col"
                       }`}
                   >
                     <div
                       className={`w-fit max-w-[85%] xs:max-w-[90%] sm:max-w-[85%] md:max-w-[70%] px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base shadow-md ${msg.role === "user"
-                          ? "bg-blue-600 text-white rounded-br-sm"
-                          : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
+                        ? "bg-blue-600 text-white rounded-br-sm"
+                        : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm"
                         }`}
                       dangerouslySetInnerHTML={msg.isHTML ?
                         { __html: DOMPurify.sanitize(msg.text) } :
