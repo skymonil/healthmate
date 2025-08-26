@@ -9,6 +9,7 @@ client/.env.production
 client/.env.test
 
 .env
+*./node_modules
 
 # React artifacts
 client/.next/
