@@ -100,19 +100,25 @@ const ChatHistory = ({
    * Effect hook to initialize component state and fetch data
    * Handles mobile view, chat history, and user details
    */
+  // 1️⃣ Control sidebar open state based on mobile view
   useEffect(() => {
-    if (!user?.id) return; //Should not fetch user history until userId is retrieved
-    mobileView ? setIsOpen(true) : setIsOpen(false); // Auto-open sidebar in mobile view
+    if (mobileView) {
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  }, [mobileView]);
 
-    /**
-     * Fetches user's chat history from the backend API
-     * Maps backend response to ChatSession format
-     */
+  // 2️⃣ Fetch chat history only when sidebar is open
+  useEffect(() => {
+    if (!user?.id || !isOpen) return;
+
+    /**  Fetches user's chat history from the backend API * Maps backend response to ChatSession format */
     const fetchChatHistory = async () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(API_ROUTES.getDiagnosisHistory, {
-          params: { userId: user?.id },
+          params: { userId: user.id },
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -127,10 +133,11 @@ const ChatHistory = ({
             (report.diagnosis?.length > 50 ? "..." : ""), // Truncate diagnosis for preview
           timestamp: new Date(report.createdAt).getTime(), // Convert to timestamp
           messages: [
-            { text: `${report.symptoms}`, role: "user" as const }, // User message with symptoms
+            { text: report.symptoms, role: "user" as const }, // User message with symptoms
             { text: report.diagnosis, role: "bot" as const }, // Bot message with diagnosis
           ],
         }));
+
         setSessions(backendSessions);
       } catch (error) {
         console.error("Failed to fetch chat history:", error);
@@ -139,7 +146,7 @@ const ChatHistory = ({
     };
 
     fetchChatHistory();
-  }, [user?.id]); // Dependency: re-fetch when user ID changes
+  }, [isOpen, user?.id]); // Dependency: re-fetch when user ID changes and sidebar opens
 
   /**
    * Handles account deletion by making API call and cleaning up local storage
@@ -329,40 +336,42 @@ const ChatHistory = ({
                 </div>
               ) : filteredSessions.length > 0 ? (
                 <ul className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {filteredSessions.map((session) => (
-                    <SheetPrimitive.Dialog key={session.id}>
-                      <SheetPrimitive.Close asChild key={session.id}>
-                        <li
-                          key={session.id}
-                          className="px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition rounded-md"
-                          onClick={() => {
-                            onSelectSession(session);
-                            setIsOpen(false);
-                            setIsOpenHamburger(false);
-                          }}
-                        >
-                          <div className="flex justify-between items-center">
-                            <div className="font-medium text-sm truncate flex-1">
-                              {session.title}
+                  {[...filteredSessions]
+                    .sort((a, b) => b.timestamp - a.timestamp) 
+                    .map((session) => (
+                      <SheetPrimitive.Dialog key={session.id}>
+                        <SheetPrimitive.Close asChild key={session.id}>
+                          <li
+                            key={session.id}
+                            className="px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition rounded-md"
+                            onClick={() => {
+                              onSelectSession(session);
+                              setIsOpen(false);
+                              setIsOpenHamburger(false);
+                            }}
+                          >
+                            <div className="flex justify-between items-center">
+                              <div className="font-medium text-sm truncate flex-1">
+                                {session.title}
+                              </div>
+                              <button
+                                className="p-1 ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-300 cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  confirmDelete(session);
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                              >
+                                <Trash2 size={14} />
+                              </button>
                             </div>
-                            <button
-                              className="p-1 ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-300 cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                confirmDelete(session);
-                              }}
-                              onMouseDown={(e) => e.stopPropagation()}
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {session.lastMessage}
-                          </div>
-                        </li>
-                      </SheetPrimitive.Close>
-                    </SheetPrimitive.Dialog>
-                  ))}
+                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {session.lastMessage}
+                            </div>
+                          </li>
+                        </SheetPrimitive.Close>
+                      </SheetPrimitive.Dialog>
+                    ))}
                 </ul>
               ) : (
                 <div className="p-4 text-center text-gray-400 text-sm">
