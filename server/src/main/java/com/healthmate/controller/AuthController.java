@@ -37,6 +37,19 @@ public class AuthController {
         try {
             Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
             if (existingUser.isPresent()) {
+                User u = existingUser.get();
+
+                if (!u.getVerified()) {
+                    String newOtp = String.format("%06d", new Random().nextInt(999999));
+                    u.setOtp(newOtp);
+                    u.setOtpGeneratedAt(LocalDateTime.now());
+                    userRepository.save(u);
+
+                    emailService.sendOtpEmail(u.getEmail(), newOtp);
+
+                    return ResponseEntity.ok(Map.of(
+                            "message", "User already registered but not verified. OTP re-sent!"));
+                }
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("message", "Email already registered!"));
             }

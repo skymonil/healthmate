@@ -30,10 +30,10 @@ const SignupForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(API_ROUTES.register, form);
+      const response = await axios.post(API_ROUTES.register, form);
 
       toast.success("OTP sent!", {
-        description: "Please check your email and enter the OTP.",
+        description: response.data.message,
       });
 
       setStep("otp");
