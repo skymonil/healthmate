@@ -77,7 +77,7 @@ const SignupForm = () => {
           id="name"
           name="name"
           type="text"
-          placeholder="Aditya Pai"
+          placeholder="Demoder Devanand"
           required
           value={form.name}
           onChange={handleChange}
@@ -91,7 +91,7 @@ const SignupForm = () => {
           id="email"
           name="email"
           type="email"
-          placeholder="you@example.com"
+          placeholder="demowashere@example.com"
           required
           value={form.email}
           onChange={handleChange}
@@ -116,7 +116,7 @@ const SignupForm = () => {
       <Button
         type="submit"
         className={cn(
-          "w-full cursor-pointer",
+          "w-full cursor-pointer text-white",
           loading && "opacity-75 cursor-not-allowed"
         )}
         disabled={loading}
