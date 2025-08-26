@@ -1,37 +1,38 @@
 # ---------- Stage 1: Build the application ----------
 FROM maven:3.9.9-eclipse-temurin-21 AS builder
 
-# Set the working directory
 WORKDIR /app
 
-# Copy only the pom.xml first for dependency caching
+# Copy only pom.xml for dependency caching
 COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source
 COPY src ./src
 
-# Package the application (skip tests for faster build, remove if you want tests to run)
+# Build application (skip tests for faster build)
 RUN mvn clean package -DskipTests
 
 # ---------- Stage 2: Create the runtime image ----------
-FROM eclipse-temurin:21-jre AS runtime
+FROM eclipse-temurin:21-jre-alpine AS runtime
 
-# Set a non-root user for security
-RUN useradd -ms /bin/bash springuser
+# Add non-root user
+RUN addgroup --system spring && adduser --system --ingroup spring springuser
 
-# Set working directory
 WORKDIR /app
 
-# Copy the JAR from the builder stage
+# Install CA certificates (with cleanup)
+
+
+# Copy jar from builder
 COPY --from=builder /app/target/*.jar app.jar
 
 # Set ownership
-RUN chown springuser:springuser app.jar
+COPY --chown=springuser:springuser --from=builder /app/target/*.jar app.jar
 
-# Switch to non-root user
 USER springuser
 
-# Expose the port your Spring Boot app runs on (default 8080)
 EXPOSE 8080
 
-# Run the jar
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
-
+ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["--spring.profiles.active=prod"]
