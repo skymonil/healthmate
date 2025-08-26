@@ -7,8 +7,12 @@ import { Loader2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { API_ROUTES } from "@/../utils/apiConfig";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const SignupForm = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -34,7 +38,8 @@ const SignupForm = () => {
 
       setStep("otp");
     } catch (err: any) {
-      const msg = err?.response?.data?.message || "Signup failed. Please try again.";
+      const msg =
+        err?.response?.data?.message || "Signup failed. Please try again.";
       toast.error("Signup Failed", { description: msg });
     } finally {
       setLoading(false);
@@ -45,22 +50,25 @@ const SignupForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(API_ROUTES.verifyOtp, {
+      const response = await axios.post(API_ROUTES.verifyOtp, {
         email: form.email,
         otp,
       });
 
+      const { token } = response.data;
+
+      const userResponse = await axios.get(API_ROUTES.getCurrentUser, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const user = userResponse.data;
+
+      login(token, user);
+
       toast.success("Account verified!", {
-        description: "You can now log in.",
-        action: {
-          label: "Login",
-          onClick: () => console.log("Navigate to login"),
-        },
+        description: "Welcome aboard!",
       });
 
-      setForm({ name: "", email: "", password: "" });
-      setOtp("");
-      setStep("signup");
+      navigate("/chat");
     } catch (err: any) {
       const msg = err?.response?.data?.message || "OTP verification failed.";
       toast.error("Verification Failed", { description: msg });
@@ -70,7 +78,10 @@ const SignupForm = () => {
   };
 
   return step === "signup" ? (
-    <form onSubmit={handleSignup} className="space-y-4 animate-in fade-in duration-700">
+    <form
+      onSubmit={handleSignup}
+      className="space-y-4 animate-in fade-in duration-700"
+    >
       <div className="space-y-2">
         <Label htmlFor="name">Full Name</Label>
         <Input
@@ -126,7 +137,10 @@ const SignupForm = () => {
       </Button>
     </form>
   ) : (
-    <form onSubmit={handleVerifyOtp} className="space-y-4 animate-in fade-in duration-700 ">
+    <form
+      onSubmit={handleVerifyOtp}
+      className="space-y-4 animate-in fade-in duration-700 "
+    >
       <div className="space-y-2">
         <Label htmlFor="otp">Enter OTP sent to {form.email}</Label>
         <Input

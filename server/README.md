@@ -43,7 +43,7 @@ Verifies the OTP sent to the user's email.
 
 **Responses**:
 
-* `200 OK`: Email verified successfully.
+* `200 OK`: Returns token, user ID and message 'Email  verified succesfully'.
 * `400 Bad Request`: Invalid or expired OTP.
 * `404 Not Found`: User not found.
 * `500 Internal Server Error`: Unexpected error.
