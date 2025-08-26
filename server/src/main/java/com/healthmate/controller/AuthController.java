@@ -37,6 +37,19 @@ public class AuthController {
         try {
             Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
             if (existingUser.isPresent()) {
+                User u = existingUser.get();
+
+                if (!u.getVerified()) {
+                    String newOtp = String.format("%06d", new Random().nextInt(999999));
+                    u.setOtp(newOtp);
+                    u.setOtpGeneratedAt(LocalDateTime.now());
+                    userRepository.save(u);
+
+                    emailService.sendOtpEmail(u.getEmail(), newOtp);
+
+                    return ResponseEntity.ok(Map.of(
+                            "message", "User already registered but not verified. OTP re-sent!"));
+                }
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("message", "Email already registered!"));
             }
@@ -77,7 +90,11 @@ public class AuthController {
             User user = optionalUser.get();
 
             if (user.getVerified()) {
-                return ResponseEntity.ok(Map.of("message", "User already verified!"));
+                String token = jwtUtil.generateToken(email);
+                return ResponseEntity.ok(Map.of(
+                        "message", "User already verified!",
+                        "token", token,
+                        "userId", user.getId()));
             }
 
             if (!otp.equals(user.getOtp())) {
@@ -95,7 +112,12 @@ public class AuthController {
             user.setOtpGeneratedAt(null);
             userRepository.save(user);
 
-            return ResponseEntity.ok(Map.of("message", "Email verified successfully!"));
+            String token = jwtUtil.generateToken(email);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Email verified successfully!",
+                    "token", token,
+                    "userId", user.getId()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -135,8 +157,7 @@ public class AuthController {
             String token = jwtUtil.generateToken(email);
             return ResponseEntity.ok(Map.of(
                     "token", token,
-                    "userId", user.getId()
-            ));
+                    "userId", user.getId()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -147,18 +168,18 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser() {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return userRepository.findByEmail(email)
-                        .<ResponseEntity<?>>map(user -> ResponseEntity.ok(user))
-                        .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "User not found")));
+        return userRepository.findByEmail(email)
+                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(user))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "User not found")));
     }
 
     @DeleteMapping
     public ResponseEntity<?> deleteCurrentUser() {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return userRepository.findByEmail(email).<ResponseEntity<?>>map(user -> {
-                userRepository.delete(user);
-                return ResponseEntity.ok(Map.of("message", "User account deleted successfully"));
-            }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "User not found")));
+        return userRepository.findByEmail(email).<ResponseEntity<?>>map(user -> {
+            userRepository.delete(user);
+            return ResponseEntity.ok(Map.of("message", "User account deleted successfully"));
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "User not found")));
 
     }
 }
