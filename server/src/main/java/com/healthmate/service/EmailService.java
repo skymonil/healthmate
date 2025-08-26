@@ -6,19 +6,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
-
+    @Value("${spring.mail.username}")
+    private String fromEmail;  
+    
     public void sendOtpEmail(String toEmail, String otp) {
+        
         try {
             System.out.println("[EmailService] Preparing to send OTP to: " + toEmail);
 
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
 
             helper.setTo(toEmail);
             helper.setSubject("Your HealthMate OTP");
