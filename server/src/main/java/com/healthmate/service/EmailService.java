@@ -7,6 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 
 @Service
 public class EmailService {
@@ -15,7 +16,7 @@ public class EmailService {
     private JavaMailSender mailSender;
     @Value("${spring.mail.username}")
     private String fromEmail;  
-    
+    @Async
     public void sendOtpEmail(String toEmail, String otp) {
         
         try {

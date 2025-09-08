@@ -80,7 +80,7 @@ resource "aws_lb_target_group" "backend_prod" {
   vpc_id      = module.vpc.vpc_id
   target_type = "ip"
   health_check {
-    path = "/health"
+    path = "/api/healthcheck"
     port = "8080"
   }
 
@@ -126,6 +126,6 @@ module "ecs" {
   SPRING_MAIL_USERNAME                  = var.SPRING_MAIL_USERNAME
   GEMINI_API_KEY                        = var.GEMINI_API_KEY
   SPRING_MAIL_SMTP_AUTH                 = var.SPRING_MAIL_SMTP_AUTH
-  SPRING_MAIL_SMTP_STARTTLS_ENABLE = var.SPRING_MAIL_SMTP_STARTTLS_ENABLE
+  SPRING_MAIL_SMTP_SSL_ENABLE             =           var.SPRING_MAIL_SMTP_SSL_ENABLE
 }
 

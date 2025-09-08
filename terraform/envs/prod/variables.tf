@@ -171,7 +171,7 @@ variable "SPRING_MAIL_SMTP_AUTH" {
   sensitive   = true
 }
 
-variable "SPRING_MAIL_SMTP_STARTTLS_ENABLE" {
+variable "SPRING_MAIL_SMTP_SSL_ENABLE" {
   description = "Enable STARTTLS for mail server"
   type        = bool
   default     = true
